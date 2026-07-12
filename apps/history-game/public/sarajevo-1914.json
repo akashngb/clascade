@@ -1,0 +1,291 @@
+{
+  "lessonId": "hero-history-sarajevo-1914",
+  "title": "Sarajevo, 1914: The Spark",
+  "subject": "history",
+  "gradeLevel": 7,
+  "template": "cinematic_timeline",
+  "sourceDeck": "uploads/ww1-intro.pdf",
+  "teacherVoiceId": null,
+  "status": "reviewed",
+  "safetyReport": {
+    "flags": [
+      {
+        "phaseId": "phase-4",
+        "issue": "depicts_violence",
+        "adjustment": "Student role changed from actor to bystander. The assassination is never shown as a player action; the moment is handled by a cinematic cutaway (camera pulls to the crowd, sound drops out, a date card resolves it). Student objective is to push through the crowd to warn the motorcade in time — the objective is designed to fail, teaching that the event was contingent, not to reward the act.",
+        "teacherApproved": true
+      }
+    ]
+  },
+  "phases": [
+    {
+      "phaseId": "phase-1",
+      "beatTitle": "Sarajevo — 28 June 1914",
+      "learningObjective": "Situate the assassination of Archduke Franz Ferdinand in time and place, and understand that Bosnia was then ruled by Austria-Hungary.",
+      "narration": {
+        "text": "It is the morning of June 28th, 1914. The city is Sarajevo, capital of Bosnia — a land ruled by the powerful empire of Austria-Hungary, but home to many Serbs who dreamed of joining a Serbian nation. Today the heir to that empire, Archduke Franz Ferdinand, is coming to visit. By the time the sun sets, the entire world will be on a road to war.",
+        "voice": "stock",
+        "audioAsset": "assets/audio/sarajevo/phase1-narration.mp3"
+      },
+      "scene": {
+        "environment": "sarajevo_street",
+        "cameraScript": [
+          { "move": "date_title_cinematic", "duration": 4 },
+          { "move": "crane_down_to_street", "duration": 6 }
+        ],
+        "actors": [],
+        "music": { "asset": "assets/audio/sarajevo/lyria-phase1.mp3", "mood": "tense_strings" }
+      },
+      "interaction": {
+        "type": "none",
+        "objective": null,
+        "completionEvent": null,
+        "quiz": null
+      },
+      "npcs": [],
+      "grounding": {
+        "claims": [
+          {
+            "claim": "Franz Ferdinand was the heir presumptive to the Austro-Hungarian throne.",
+            "source": "https://www.britannica.com/biography/Franz-Ferdinand-archduke-of-Austria-Este",
+            "confidence": "high",
+            "teacherApproved": true
+          },
+          {
+            "claim": "Bosnia was under Austro-Hungarian rule in 1914, having been annexed in 1908.",
+            "source": "https://www.britannica.com/event/Bosnian-crisis-of-1908",
+            "confidence": "high",
+            "teacherApproved": true
+          }
+        ]
+      },
+      "telemetryEvents": ["phase_enter", "replay"]
+    },
+    {
+      "phaseId": "phase-2",
+      "beatTitle": "The City Waits",
+      "learningObjective": "Understand the political tension of the visit by reading how the day was publicized and why some Bosnian Serbs opposed it.",
+      "narration": {
+        "text": "The streets are decorated. Crowds line the road because the newspapers printed the Archduke's exact route days in advance — anyone could learn where his car would be, and when. Walk the street. Find the newspaper stand and read the morning headline.",
+        "voice": "stock",
+        "audioAsset": "assets/audio/sarajevo/phase2-narration.mp3"
+      },
+      "scene": {
+        "environment": "sarajevo_street",
+        "cameraScript": [
+          { "move": "first_person_walk", "duration": 0 }
+        ],
+        "actors": [
+          { "id": "crowd", "asset": "library/crowd_lowpoly.glb", "path": "sidewalk_ambient" }
+        ],
+        "music": { "asset": "assets/audio/sarajevo/lyria-phase2.mp3", "mood": "uneasy_ambient" }
+      },
+      "interaction": {
+        "type": "objective",
+        "objective": "Find the newspaper stand and read the headline announcing the Archduke's visit and route.",
+        "completionEvent": "read_headline",
+        "quiz": null
+      },
+      "npcs": [],
+      "grounding": {
+        "claims": [
+          {
+            "claim": "The route of the Archduke's motorcade was published in advance in local newspapers.",
+            "source": "https://www.history.com/topics/world-war-i/archduke-franz-ferdinand",
+            "confidence": "medium",
+            "teacherApproved": true
+          }
+        ]
+      },
+      "telemetryEvents": ["phase_enter", "objective_complete", "replay"]
+    },
+    {
+      "phaseId": "phase-3",
+      "beatTitle": "The Wrong Turn",
+      "learningObjective": "Recognize how chance and error turned a failed morning attack into a fatal one — the event was not inevitable.",
+      "narration": {
+        "text": "Earlier this morning, a bomb was thrown at the motorcade and missed, bouncing off the Archduke's car. Shaken but unharmed, Franz Ferdinand decided to visit the wounded in the hospital. But his driver was never told the route had changed. He turns the car down the wrong street — Franz Josef Street — and stops to reverse.",
+        "voice": "stock",
+        "audioAsset": "assets/audio/sarajevo/phase3-narration.mp3"
+      },
+      "scene": {
+        "environment": "sarajevo_street",
+        "cameraScript": [
+          { "move": "follow_actor", "duration": 8 },
+          { "move": "slow_motion_orbit", "duration": 4 }
+        ],
+        "actors": [
+          { "id": "motorcade", "asset": "tripo/graef_stift_1911.glb", "path": "wrong_turn_route" }
+        ],
+        "music": { "asset": "assets/audio/sarajevo/lyria-phase3.mp3", "mood": "rising_tension" }
+      },
+      "interaction": {
+        "type": "none",
+        "objective": null,
+        "completionEvent": null,
+        "quiz": null
+      },
+      "npcs": [],
+      "grounding": {
+        "claims": [
+          {
+            "claim": "An earlier grenade attack that morning failed, bouncing off the Archduke's car.",
+            "source": "https://www.bbc.co.uk/history/events/assassination_franz_ferdinand",
+            "confidence": "high",
+            "teacherApproved": true
+          },
+          {
+            "claim": "The driver took a wrong turn onto Franz Josef Street and stopped to reverse, bringing the car near Gavrilo Princip.",
+            "source": "https://www.britannica.com/event/assassination-of-Archduke-Franz-Ferdinand",
+            "confidence": "high",
+            "teacherApproved": true
+          }
+        ]
+      },
+      "telemetryEvents": ["phase_enter", "replay"]
+    },
+    {
+      "phaseId": "phase-4",
+      "beatTitle": "The Spark",
+      "learningObjective": "Understand that a single moment ignited a chain of events — witnessed as a bystander, not enacted.",
+      "narration": {
+        "text": "The stopped car sits just a few feet from a young man named Gavrilo Princip. The crowd is thick around you. Push through — try to reach the motorcade and warn them before it is too late.",
+        "voice": "stock",
+        "audioAsset": "assets/audio/sarajevo/phase4-narration.mp3"
+      },
+      "scene": {
+        "environment": "sarajevo_street",
+        "cameraScript": [
+          { "move": "first_person_walk", "duration": 0 },
+          { "move": "cutaway", "duration": 5 }
+        ],
+        "actors": [
+          { "id": "motorcade", "asset": "tripo/graef_stift_1911.glb", "path": "stalled_stop" },
+          { "id": "crowd_dense", "asset": "library/crowd_lowpoly.glb", "path": "block_player" }
+        ],
+        "music": { "asset": "assets/audio/sarajevo/lyria-phase4.mp3", "mood": "held_breath" }
+      },
+      "interaction": {
+        "type": "objective",
+        "objective": "Push through the crowd to warn the motorcade. (Timed — the crowd is too thick to reach it in time. When the timer expires, the camera cuts away.)",
+        "completionEvent": "warn_failed_cutaway",
+        "quiz": null
+      },
+      "npcs": [],
+      "grounding": {
+        "claims": [
+          {
+            "claim": "Gavrilo Princip, a member of the nationalist group Young Bosnia, fired the fatal shots on 28 June 1914.",
+            "source": "https://www.britannica.com/biography/Gavrilo-Princip",
+            "confidence": "high",
+            "teacherApproved": true
+          }
+        ]
+      },
+      "telemetryEvents": ["phase_enter", "objective_complete", "replay"]
+    },
+    {
+      "phaseId": "phase-5",
+      "beatTitle": "The Dominoes Fall",
+      "learningObjective": "Trace how a system of alliances turned one assassination into a world war within six weeks.",
+      "narration": {
+        "text": "One death. But Europe was tied together by a web of alliances — promises that if one nation fought, its friends would join. Austria-Hungary blamed Serbia. Russia stood with Serbia. Germany stood with Austria-Hungary. France stood with Russia. In just six weeks, a single bullet in Sarajevo pulled the whole continent into the First World War.",
+        "voice": "stock",
+        "audioAsset": "assets/audio/sarajevo/phase5-narration.mp3"
+      },
+      "scene": {
+        "environment": "alliance_map",
+        "cameraScript": [
+          { "move": "slow_motion_orbit", "duration": 10 }
+        ],
+        "actors": [],
+        "music": { "asset": "assets/audio/sarajevo/lyria-phase5.mp3", "mood": "somber_swell" }
+      },
+      "interaction": {
+        "type": "explore",
+        "objective": "Examine each nation on the map to see who was pulled into the war and why.",
+        "completionEvent": "alliances_examined",
+        "quiz": null
+      },
+      "npcs": [],
+      "grounding": {
+        "claims": [
+          {
+            "claim": "A system of alliances (notably the Triple Entente and Triple Alliance) escalated the conflict into a general European war.",
+            "source": "https://www.britannica.com/event/World-War-I/The-outbreak-of-war",
+            "confidence": "high",
+            "teacherApproved": true
+          },
+          {
+            "claim": "The major powers declared war over roughly six weeks, from late July to early August 1914.",
+            "source": "https://www.britannica.com/event/World-War-I",
+            "confidence": "high",
+            "teacherApproved": true
+          }
+        ]
+      },
+      "telemetryEvents": ["phase_enter", "objective_complete", "npc_question_asked", "replay"]
+    },
+    {
+      "phaseId": "phase-6",
+      "beatTitle": "Checkpoint",
+      "learningObjective": "Check retention of the core causal chain: place, contingency, and alliances.",
+      "narration": {
+        "text": "Before we move on — let's see what you remember about the day the world changed.",
+        "voice": "stock",
+        "audioAsset": "assets/audio/sarajevo/phase6-narration.mp3"
+      },
+      "scene": {
+        "environment": "quiz_room",
+        "cameraScript": [
+          { "move": "date_title_cinematic", "duration": 2 }
+        ],
+        "actors": [],
+        "music": { "asset": "assets/audio/sarajevo/lyria-phase6.mp3", "mood": "neutral_calm" }
+      },
+      "interaction": {
+        "type": "quiz",
+        "objective": "Answer to complete the lesson.",
+        "completionEvent": "quiz_passed",
+        "quiz": {
+          "questions": [
+            {
+              "id": "q1",
+              "prompt": "Which empire ruled Bosnia in 1914?",
+              "choices": ["Austria-Hungary", "The Ottoman Empire", "Serbia", "Russia"],
+              "answerIndex": 0,
+              "hint": "Franz Ferdinand was heir to this empire's throne."
+            },
+            {
+              "id": "q2",
+              "prompt": "Why did the assassination succeed after the morning's attack failed?",
+              "choices": [
+                "The driver took a wrong turn and stopped the car near the assassin",
+                "The Archduke had no bodyguards",
+                "The route was kept secret",
+                "There was a storm"
+              ],
+              "answerIndex": 0,
+              "hint": "Think about the mistake the driver made on Franz Josef Street."
+            },
+            {
+              "id": "q3",
+              "prompt": "How did one assassination turn into a world war?",
+              "choices": [
+                "A system of alliances pulled allied nations into the conflict",
+                "Every country wanted the Archduke's throne",
+                "Sarajevo declared war on the world",
+                "It was already a world war before 1914"
+              ],
+              "answerIndex": 0,
+              "hint": "Remember the dominoes: who stood with whom?"
+            }
+          ]
+        }
+      },
+      "npcs": [],
+      "grounding": { "claims": [] },
+      "telemetryEvents": ["phase_enter", "quiz_answer", "objective_complete", "replay"]
+    }
+  ]
+}
