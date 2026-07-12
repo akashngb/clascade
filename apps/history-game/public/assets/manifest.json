@@ -1,0 +1,87 @@
+{
+  "generatedAt": "2026-07-12T07:59:16.642Z",
+  "source": "poly.pizza",
+  "models": {
+    "car": {
+      "file": "assets/models/car.glb",
+      "title": "Old Car",
+      "triCount": 22081,
+      "licence": "CC-BY 3.0",
+      "attribution": "\"Old Car\" by Attila Dobák, https://poly.pizza/m/3knnxGlixiJ. Licence at https://creativecommons.org/licenses/by/3.0",
+      "polyPizzaId": "3knnxGlixiJ",
+      "note": "motorcade — recognizability-critical"
+    },
+    "lamp": {
+      "file": "assets/models/lamp.glb",
+      "title": "Lamp post",
+      "triCount": 2268,
+      "licence": "CC-BY 3.0",
+      "attribution": "\"Lamp post\" by Poly by Google, https://poly.pizza/m/ez9fM9NvtRB. Licence at https://creativecommons.org/licenses/by/3.0",
+      "polyPizzaId": "ez9fM9NvtRB",
+      "note": ""
+    },
+    "bench": {
+      "file": "assets/models/bench.glb",
+      "title": "Bench",
+      "triCount": 288,
+      "licence": "CC-BY 3.0",
+      "attribution": "\"Bench\" by Ev Amitay, https://poly.pizza/m/dOSjmdmKaxi. Licence at https://creativecommons.org/licenses/by/3.0",
+      "polyPizzaId": "dOSjmdmKaxi",
+      "note": ""
+    },
+    "tree": {
+      "file": "assets/models/tree.glb",
+      "title": "Tree",
+      "triCount": 932,
+      "licence": "CC-BY 3.0",
+      "attribution": "\"Tree\" by Marc Solà, https://poly.pizza/m/6Yjt8nIwLsD. Licence at https://creativecommons.org/licenses/by/3.0",
+      "polyPizzaId": "6Yjt8nIwLsD",
+      "note": ""
+    },
+    "barrel": {
+      "file": "assets/models/barrel.glb",
+      "title": "Barrel",
+      "triCount": 1384,
+      "licence": "CC0 1.0",
+      "attribution": "\"Barrel\" by Quaternius, https://poly.pizza/m/ONdghDBByN. Licence at https://creativecommons.org/publicdomain/zero/1.0/",
+      "polyPizzaId": "ONdghDBByN",
+      "note": ""
+    },
+    "crate": {
+      "file": "assets/models/crate.glb",
+      "title": "Crate",
+      "triCount": 784,
+      "licence": "CC0 1.0",
+      "attribution": "\"Crate\" by Quaternius, https://poly.pizza/m/3OEFd1AWfa. Licence at https://creativecommons.org/publicdomain/zero/1.0/",
+      "polyPizzaId": "3OEFd1AWfa",
+      "note": ""
+    },
+    "person1": {
+      "file": "assets/models/person1.glb",
+      "title": "Man",
+      "triCount": 1216,
+      "licence": "CC0 1.0",
+      "attribution": "\"Man\" by Quaternius, https://poly.pizza/m/HMnuH5geEG. Licence at https://creativecommons.org/publicdomain/zero/1.0/",
+      "polyPizzaId": "HMnuH5geEG",
+      "note": "crowd figure — Man"
+    },
+    "person2": {
+      "file": "assets/models/person2.glb",
+      "title": "Farmer",
+      "triCount": 3716,
+      "licence": "CC0 1.0",
+      "attribution": "\"Farmer\" by Quaternius, https://poly.pizza/m/7pn3R6hPvE. Licence at https://creativecommons.org/publicdomain/zero/1.0/",
+      "polyPizzaId": "7pn3R6hPvE",
+      "note": "crowd figure — Farmer"
+    },
+    "person3": {
+      "file": "assets/models/person3.glb",
+      "title": "Woman",
+      "triCount": 3396,
+      "licence": "CC0 1.0",
+      "attribution": "\"Woman\" by Polygonal Mind, https://poly.pizza/m/usAZvwbH0Y. Licence at https://creativecommons.org/publicdomain/zero/1.0/",
+      "polyPizzaId": "usAZvwbH0Y",
+      "note": "crowd figure — Woman"
+    }
+  }
+}

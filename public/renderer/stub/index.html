@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Clascade stub renderer</title>
+    <style>
+      html, body { margin: 0; height: 100%; overflow: hidden; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #fff; }
+      #root { display: grid; place-items: center; height: 100%; transition: background 400ms ease; }
+      h1 { font-size: 12vmin; letter-spacing: 0.1em; margin: 0; }
+      p { position: fixed; bottom: 18px; left: 0; right: 0; text-align: center; opacity: 0.7; font-size: 14px; }
+      .badge { position: fixed; top: 16px; left: 16px; font-size: 12px; opacity: 0.6; }
+    </style>
+  </head>
+  <body>
+    <div id="root"><div style="text-align:center"><h1 id="phase">—</h1></div></div>
+    <span class="badge">stub renderer · implements the clascade protocol</span>
+    <p id="state"></p>
+    <script>
+      // Reference implementation of the Clascade renderer protocol.
+      const PHASE_COUNT = 6;
+      const PALETTE = ["#12351f", "#16294d", "#3a1f4d", "#4d3a1f", "#1f4d47", "#4d1f2a"];
+      let idx = 0;
+      let paused = false;
+
+      function render() {
+        document.getElementById("phase").textContent = "PHASE " + (idx + 1) + " / " + PHASE_COUNT;
+        document.getElementById("root").style.background = paused ? "#2a0e16" : PALETTE[idx % PALETTE.length];
+        document.getElementById("state").textContent = paused ? "⏸ paused by teacher" : "● live — following the teacher";
+      }
+
+      function post(type, extra) {
+        parent.postMessage(Object.assign({ source: "clascade-renderer", type }, extra || {}), "*");
+      }
+
+      window.addEventListener("message", (event) => {
+        const data = event.data;
+        if (!data || data.source !== "clascade") return;
+        if (data.type === "set-phase") { idx = Math.max(0, Math.min(PHASE_COUNT - 1, data.phaseIndex | 0)); render(); }
+        else if (data.type === "set-paused") { paused = !!data.paused; render(); }
+        else if (data.type === "hello") { post("ready", { phaseCount: PHASE_COUNT }); }
+      });
+
+      render();
+      // Announce readiness (covers the case where the parent is already listening).
+      post("ready", { phaseCount: PHASE_COUNT });
+    </script>
+  </body>
+</html>
