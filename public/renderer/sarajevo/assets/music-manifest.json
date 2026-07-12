@@ -1,0 +1,12 @@
+{
+  "model": "lyria-002",
+  "generatedAt": "2026-07-12T08:03:32.915Z",
+  "music": {
+    "phase-1": "assets/audio/music/phase-1.wav",
+    "phase-2": "assets/audio/music/phase-2.wav",
+    "phase-3": "assets/audio/music/phase-3.wav",
+    "phase-4": "assets/audio/music/phase-4.wav",
+    "phase-5": "assets/audio/music/phase-5.wav",
+    "phase-6": "assets/audio/music/phase-6.wav"
+  }
+}
