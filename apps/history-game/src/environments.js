@@ -843,35 +843,99 @@ export function buildAllianceMap(scene) {
 // ---------------------------------------------------------------------------
 export function buildQuizRoom(scene) {
   const group = new THREE.Group();
-  const hemi = new THREE.HemisphereLight(0x4a4436, 0x0a0908, 0.7);
+  const animated = [];
+
+  const hemi = new THREE.HemisphereLight(0x3a3428, 0x060504, 0.5);
   group.add(hemi);
-  const key = new THREE.DirectionalLight(0xffe6c4, 0.9);
-  key.position.set(6, 14, 8); key.castShadow = true; group.add(key);
+  const shaft = new THREE.SpotLight(0xffe2b0, 700, 60, Math.PI * 0.16, 0.7, 1.9);
+  shaft.position.set(0, 26, 2);
+  shaft.target.position.set(0, 0, 0);
+  shaft.castShadow = true;
+  group.add(shaft, shaft.target);
+  const ember = new THREE.PointLight(0xe8a05c, 14, 18, 2);
+  ember.position.set(0, 1.4, 0);
+  group.add(ember);
+  animated.push({ fn: (t) => { ember.intensity = 12 + Math.sin(t * 7.3) * 1.6 + Math.sin(t * 13.1) * 0.9; } });
 
-  const platform = new THREE.Mesh(
-    new THREE.CylinderGeometry(8, 8.4, 0.6, 48),
-    new THREE.MeshStandardMaterial({ color: 0x2a241c, roughness: 0.8 })
+  // Floor + dais
+  const floor = new THREE.Mesh(
+    new THREE.CircleGeometry(30, 48),
+    new THREE.MeshStandardMaterial({ color: 0x17130e, roughness: 0.95 })
   );
-  platform.position.y = -0.3; platform.receiveShadow = true; group.add(platform);
+  floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true;
+  group.add(floor);
+  const dais = new THREE.Mesh(
+    new THREE.CylinderGeometry(6.5, 7.2, 0.7, 48),
+    new THREE.MeshStandardMaterial({ color: 0x2c2419, roughness: 0.8 })
+  );
+  dais.position.y = 0.35; dais.receiveShadow = true; dais.castShadow = true;
+  group.add(dais);
+  const inlay = new THREE.Mesh(
+    new THREE.TorusGeometry(5.2, 0.07, 8, 64),
+    new THREE.MeshStandardMaterial({ color: 0xc8a45c, emissive: 0xc8a45c, emissiveIntensity: 0.5, roughness: 0.4 })
+  );
+  inlay.rotation.x = -Math.PI / 2; inlay.position.y = 0.72;
+  group.add(inlay);
 
-  const rings = new THREE.Group();
-  for (let i = 0; i < 3; i++) {
-    const r = new THREE.Mesh(
-      new THREE.TorusGeometry(3 + i * 1.6, 0.05, 8, 60),
-      new THREE.MeshStandardMaterial({ color: 0xe8b04b, emissive: 0xe8b04b, emissiveIntensity: 0.6, transparent: true, opacity: 0.5 })
-    );
-    r.rotation.x = -Math.PI / 2; r.position.y = 1 + i * 0.4; rings.add(r);
+  // Six standing stones in a rear semicircle — one for each chapter walked.
+  const stoneMat = new THREE.MeshStandardMaterial({ color: 0x3b342a, roughness: 0.9 });
+  for (let i = 0; i < 6; i++) {
+    const a = Math.PI * (0.15 + (i / 5) * 0.7); // arc behind the dais (-Z half)
+    const h = 4.6 + Math.sin(i * 2.1) * 0.5;
+    const stone = new THREE.Mesh(new THREE.BoxGeometry(1.5, h, 0.9), stoneMat);
+    stone.position.set(Math.cos(a) * 12.5, h / 2, -Math.sin(a) * 12.5 - 2);
+    stone.rotation.y = Math.PI / 2 - a + rand(-0.08, 0.08);
+    stone.rotation.z = rand(-0.02, 0.02);
+    stone.castShadow = true;
+    group.add(stone);
   }
-  group.add(rings);
+
+  // The dates, hanging in the dark above the stones.
+  const dates = makeLabel('MCMXIV — MCMXVIII', { color: '#cbbfa6', size: 46 });
+  dates.scale.set(14, 4.4, 1);
+  dates.position.set(0, 8.5, -12);
+  group.add(dates);
+
+  // Dust motes drifting up through the light.
+  const MOTES = 320;
+  const pos = new Float32Array(MOTES * 3);
+  for (let i = 0; i < MOTES; i++) {
+    pos[i * 3] = rand(-9, 9);
+    pos[i * 3 + 1] = rand(0.2, 14);
+    pos[i * 3 + 2] = rand(-9, 9);
+  }
+  const motesGeom = new THREE.BufferGeometry();
+  motesGeom.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const motes = new THREE.Points(motesGeom, new THREE.PointsMaterial({
+    color: 0xd8c49a, size: 0.07, transparent: true, opacity: 0.5,
+    blending: THREE.AdditiveBlending, depthWrite: false,
+  }));
+  group.add(motes);
+  animated.push({
+    fn: (t, dt) => {
+      const arr = motesGeom.attributes.position.array;
+      for (let i = 0; i < MOTES; i++) {
+        arr[i * 3 + 1] += dt * 0.14;
+        arr[i * 3] += Math.sin(t * 0.4 + i) * dt * 0.05;
+        if (arr[i * 3 + 1] > 14) arr[i * 3 + 1] = 0.2;
+      }
+      motesGeom.attributes.position.needsUpdate = true;
+    },
+  });
 
   scene.add(group);
+
+  let time = 0;
   return {
     group,
     focal: new THREE.Vector3(0, 2, 0),
     forward: new THREE.Vector3(0, 0, -1),
-    rings,
-    background: new THREE.Color(0x0a0908),
-    fog: { color: 0x0a0908, density: 0.02 },
+    background: new THREE.Color(0x070605),
+    fog: { color: 0x070605, density: 0.016 },
+    update: (dt) => {
+      time += dt;
+      for (const a of animated) a.fn(time, dt);
+    },
     dispose: () => disposeGroup(scene, group),
   };
 }

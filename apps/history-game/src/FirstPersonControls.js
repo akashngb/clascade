@@ -18,6 +18,8 @@ export class FirstPersonControls {
     this.dragging = false;
     this.bounds = { minX: -22, maxX: 22, minZ: -60, maxZ: 20 };
     this._euler = new THREE.Euler(0, 0, 0, 'YXZ');
+    this._bobT = 0;
+    this._bob = 0;
 
     this._onKeyDown = (e) => this.keys.add(e.code);
     this._onKeyUp = (e) => this.keys.delete(e.code);
@@ -80,13 +82,19 @@ export class FirstPersonControls {
     if (this.keys.has('KeyD')) move.add(right);
     if (this.keys.has('KeyA')) move.sub(right);
 
-    if (move.lengthSq() > 0) {
+    const walking = move.lengthSq() > 0;
+    if (walking) {
       move.normalize().multiplyScalar(SPEED * dt);
       const p = this.camera.position;
       p.x = THREE.MathUtils.clamp(p.x + move.x, this.bounds.minX, this.bounds.maxX);
       p.z = THREE.MathUtils.clamp(p.z + move.z, this.bounds.minZ, this.bounds.maxZ);
-      p.y = EYE_HEIGHT;
     }
+
+    // Gentle head bob while walking; settles when standing.
+    this._bobT += dt * (walking ? 9 : 0);
+    const target = walking ? Math.sin(this._bobT) * 0.045 : 0;
+    this._bob += (target - this._bob) * Math.min(dt * 10, 1);
+    this.camera.position.y = EYE_HEIGHT + this._bob;
   }
 
   get position() { return this.camera.position; }

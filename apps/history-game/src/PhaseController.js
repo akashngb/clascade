@@ -93,6 +93,9 @@ export class PhaseController {
 
     this.index = n;
     const phase = this.spec.phases[n];
+    // The cutaway animates fov; give every phase a clean lens.
+    this.game.camera.fov = 55;
+    this.game.camera.updateProjectionMatrix();
     this.setActiveEnv(phase.scene.environment);
 
     ui.setPhaseInfo(n, this.spec.phases.length, phase.beatTitle);
@@ -153,8 +156,11 @@ export class PhaseController {
       actor = this.env.car;
       this.animateAlong(actor, this.env.wrongTurn.path, 12);
       ctx.actor = actor;
-      // Orbit the stopped car from the quay side of the junction, clear of
-      // both building rows and Schiller's corner.
+      // The bystander's corner: on the sidewalk by Schiller's, watching the
+      // car swing off the quay and stop a few feet away.
+      ctx.cornerCam = new THREE.Vector3(-5.4, 1.7, -14.8);
+      // Then orbit the stopped car from the quay side of the junction, clear
+      // of both building rows and Schiller's corner.
       ctx.orbitRadius = 5.5;
       ctx.orbitHeight = 3.0;
       ctx.orbitStart = -0.35;
@@ -322,14 +328,17 @@ export class PhaseController {
   // --- Quiz checkpoint ---
   setupQuiz(phase) {
     ui.setCinematic(false);
-    // Frame the platform.
-    this.game.camera.position.set(0, 4.5, 12);
-    this.game.camera.lookAt(0, 2, 0);
-
-    if (this.env.rings) {
-      const stop = this.game.onUpdate((dt) => { this.env.rings.rotation.y += dt * 0.3; });
-      this._cleanup.push(stop);
-    }
+    // Frame the dais with the standing stones and dates behind it, drifting
+    // forward almost imperceptibly for the length of the examination.
+    const camStart = new THREE.Vector3(0, 4.2, 14);
+    this.game.camera.position.copy(camStart);
+    this.game.camera.lookAt(0, 2.4, -6);
+    let drift = 0;
+    const stop = this.game.onUpdate((dt) => {
+      drift = Math.min(drift + dt, 60);
+      this.game.camera.position.z = camStart.z - drift * 0.03;
+    });
+    this._cleanup.push(stop);
 
     setTimeout(() => {
       if (this.index !== this.spec.phases.indexOf(phase)) return;

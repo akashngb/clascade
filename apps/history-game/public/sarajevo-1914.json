@@ -111,8 +111,9 @@
       "scene": {
         "environment": "sarajevo_street",
         "cameraScript": [
-          { "move": "follow_actor", "duration": 8 },
-          { "move": "slow_motion_orbit", "duration": 4 }
+          { "move": "follow_actor", "duration": 6.5 },
+          { "move": "corner_watch", "duration": 5 },
+          { "move": "slow_motion_orbit", "duration": 4.5 }
         ],
         "actors": [
           { "id": "motorcade", "asset": "tripo/graef_stift_1911.glb", "path": "wrong_turn_route" }
