@@ -14,10 +14,12 @@
   "dependencies": {
     "@google/genai": "latest",
     "@phosphor-icons/react": "latest",
+    "@xyflow/react": "^12.11.2",
     "clsx": "latest",
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
+    "react-resizable-panels": "^4.12.1",
     "three": "latest",
     "zod": "latest"
   },

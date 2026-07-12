@@ -1,5 +1,5 @@
-import { TeacherConsole } from "@/components/teacher-console";
+import { StudioConsole } from "@/components/studio-console";
 
 export default function TeachPage() {
-  return <TeacherConsole />;
+  return <StudioConsole />;
 }

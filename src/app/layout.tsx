@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "@xyflow/react/dist/style.css";
 
 export const metadata: Metadata = {
   title: "Clascade | Interactive lessons, conducted by teachers",
