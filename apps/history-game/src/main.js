@@ -26,6 +26,8 @@ async function boot() {
   game.onUpdate((dt) => fp.update(dt));
 
   const controller = new PhaseController(game, spec, director, fp, assets);
+  window.__game = game;
+  window.__controller = controller;
 
   let paused = false;
   ui.onTeacherControls({
