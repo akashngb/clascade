@@ -86,6 +86,7 @@ export class PhaseController {
     ui.hideObjective();
     ui.hidePrompt();
     ui.hideSubtitle();
+    ui.showHint(false);
     ui.setTimer(null);
 
     this.index = n;
@@ -189,6 +190,7 @@ export class PhaseController {
   setupObjective(phase) {
     ui.setCinematic(false);
     ui.showObjective(phase.interaction.objective);
+    ui.showHint(true);
     this.fp.enable(new THREE.Vector3(3, 0, 12), 0);
 
     const target = this.env.newspaperStand.position;
@@ -227,6 +229,7 @@ export class PhaseController {
   setupSafetyPhase(phase) {
     ui.setCinematic(false);
     ui.showObjective(phase.interaction.objective);
+    ui.showHint(true);
     this.fp.enable(new THREE.Vector3(6, 0, 9), -0.5);
 
     // Car stalled on the roadway where it stopped to reverse; player cannot
@@ -326,7 +329,11 @@ export class PhaseController {
       ui.showQuiz(phase.interaction.quiz, (score, total) => {
         this.emit('quiz_answer', { score, total });
         this.emit('objective_complete', { completionEvent: phase.interaction.completionEvent });
-        ui.showSubtitle(`You scored ${score} / ${total}. Lesson complete.`);
+        ui.showRecap({
+          score,
+          total,
+          onReplay: () => this.goToPhase(0),
+        });
       });
     }, 2600);
   }

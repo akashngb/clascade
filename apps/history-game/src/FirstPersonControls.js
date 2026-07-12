@@ -74,10 +74,11 @@ export class FirstPersonControls {
     const forward = new THREE.Vector3(-Math.sin(this.yaw), 0, -Math.cos(this.yaw));
     const right = new THREE.Vector3(Math.cos(this.yaw), 0, -Math.sin(this.yaw));
     const move = new THREE.Vector3();
-    if (this.keys.has('KeyW') || this.keys.has('ArrowUp')) move.add(forward);
-    if (this.keys.has('KeyS') || this.keys.has('ArrowDown')) move.sub(forward);
-    if (this.keys.has('KeyD') || this.keys.has('ArrowRight')) move.add(right);
-    if (this.keys.has('KeyA') || this.keys.has('ArrowLeft')) move.sub(right);
+    // WASD only — arrow keys belong to the teacher bar (phase prev/next).
+    if (this.keys.has('KeyW')) move.add(forward);
+    if (this.keys.has('KeyS')) move.sub(forward);
+    if (this.keys.has('KeyD')) move.add(right);
+    if (this.keys.has('KeyA')) move.sub(right);
 
     if (move.lengthSq() > 0) {
       move.normalize().multiplyScalar(SPEED * dt);

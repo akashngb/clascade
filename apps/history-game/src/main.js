@@ -29,6 +29,9 @@ async function boot() {
   window.__game = game;
   window.__controller = controller;
 
+  ui.setChapters(spec.phases.map((p) => p.beatTitle));
+  ui.onJumpTo((n) => controller.goToPhase(n));
+
   let paused = false;
   ui.onTeacherControls({
     onPrev: () => controller.prev(),
