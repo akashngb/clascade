@@ -17,3 +17,4 @@ secrets/
 # downloaded/generated assets (large binaries; kept out of git)
 apps/history-game/public/assets/models/
 apps/history-game/public/assets/audio/
+apps/history-game/public/assets/textures/
