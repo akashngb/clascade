@@ -10,3 +10,5 @@ dist/
 coverage/
 secrets/
 *.tsbuildinfo
+
+.vercel
