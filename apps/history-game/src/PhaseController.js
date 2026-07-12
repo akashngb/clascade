@@ -156,10 +156,12 @@ export class PhaseController {
       ];
       this.animateAlong(actor, path, 11);
       ctx.actor = actor;
-      // Tight, street-contained orbit around the stopped car.
-      ctx.orbitRadius = 6.5;
-      ctx.orbitHeight = 4.2;
-      ctx.orbitStart = Math.PI * 0.2;
+      // Tight orbit that stays on the town side of the car so it never sweeps
+      // into the buildings that line the street's ±X sides.
+      ctx.orbitRadius = 5;
+      ctx.orbitHeight = 3.2;
+      ctx.orbitStart = Math.PI * 0.35;
+      ctx.orbitSweep = Math.PI * 0.3;
     }
 
     this.director.playSequence(phase.scene.cameraScript, ctx);

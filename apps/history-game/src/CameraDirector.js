@@ -115,12 +115,14 @@ export class CameraDirector {
         const forward = new THREE.Vector3(Math.sin(ry), 0, Math.cos(ry));
         const right = new THREE.Vector3(forward.z, 0, -forward.x);
         const desired = target.clone()
-          .add(forward.clone().multiplyScalar(-7.5)) // behind
-          .add(right.clone().multiplyScalar(3))       // to the side
-          .setY(3.2);                                 // camera height
+          .add(forward.clone().multiplyScalar(-4.5)) // close behind
+          .add(right.clone().multiplyScalar(2))       // slightly to the side
+          .setY(2.2);                                 // low, dramatic
         const blend = Math.min(c.elapsed / 1.3, 1);
         cam.position.lerpVectors(c.startPos, desired, easeOut(blend));
-        const look = target.clone().add(forward.clone().multiplyScalar(3)).setY(1.3);
+        // Look at the car body so it fills the upper-centre, clear of the
+        // subtitle band along the bottom.
+        const look = target.clone().add(forward.clone().multiplyScalar(1)).setY(1.1);
         cam.quaternion.copy(this._lookQuat(cam.position, look));
         break;
       }
@@ -131,7 +133,8 @@ export class CameraDirector {
         const radius = this.ctx.orbitRadius || 12;
         const height = this.ctx.orbitHeight || 5.5;
         const startAngle = this.ctx.orbitStart ?? Math.PI * 0.25;
-        const angle = startAngle + easeInOut(t) * Math.PI * 0.9;
+        const sweep = this.ctx.orbitSweep ?? Math.PI * 0.9;
+        const angle = startAngle + easeInOut(t) * sweep;
         const desired = center.clone().add(
           new THREE.Vector3(Math.cos(angle) * radius, height, Math.sin(angle) * radius)
         );
