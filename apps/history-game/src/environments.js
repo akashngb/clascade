@@ -178,7 +178,7 @@ export function buildStreet(scene, assets = { models: {} }) {
   group.add(car);
 
   // Crowd lining the sidewalks
-  const crowd = buildCrowd(26);
+  const crowd = buildCrowd(26, models);
   group.add(crowd);
 
   scene.add(group);
@@ -231,21 +231,32 @@ function buildCar() {
   return car;
 }
 
-// Crowd of simple figures lining both sidewalks.
-function buildCrowd(count) {
+// Crowd lining both sidewalks. Uses person GLBs when available (randomly
+// picking among the loaded variants), else a capsule+sphere figure.
+function buildCrowd(count, models = {}) {
   const crowd = new THREE.Group();
+  const personSlots = ['person1', 'person2', 'person3'].filter((s) => models[s]);
   const clothes = [0x6b5d52, 0x4a4a55, 0x7a5a4a, 0x565c50, 0x8a7a66, 0x3f3a34];
   const skin = new THREE.MeshStandardMaterial({ color: 0xcaa98a, roughness: 0.8 });
-  for (let i = 0; i < count; i++) {
+
+  const primitiveFigure = () => {
     const fig = new THREE.Group();
     const bodyMat = new THREE.MeshStandardMaterial({ color: pick(clothes), roughness: 0.9 });
     const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.28, 0.9, 4, 8), bodyMat);
     body.position.y = 0.85; body.castShadow = true; fig.add(body);
     const head = new THREE.Mesh(new THREE.SphereGeometry(0.22, 12, 12), skin);
     head.position.y = 1.55; fig.add(head);
+    return fig;
+  };
+
+  for (let i = 0; i < count; i++) {
+    const fig = personSlots.length ? instance(models, pick(personSlots)) : primitiveFigure();
+    if (!fig) continue;
     const side = Math.random() < 0.5 ? -1 : 1;
     fig.position.set(side * rand(3.8, 5.2), 0, rand(-50, 8));
-    fig.rotation.y = rand(-0.5, 0.5) + (side < 0 ? Math.PI / 2 : -Math.PI / 2);
+    // Face roughly toward the roadway, with some natural variation.
+    fig.rotation.y = rand(-0.6, 0.6) + (side < 0 ? Math.PI / 2 : -Math.PI / 2);
+    fig.scale.multiplyScalar(rand(0.92, 1.08));
     crowd.add(fig);
   }
   return crowd;

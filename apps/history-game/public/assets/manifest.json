@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-12T07:49:40.119Z",
+  "generatedAt": "2026-07-12T07:59:16.642Z",
   "source": "poly.pizza",
   "models": {
     "car": {
@@ -55,6 +55,33 @@
       "attribution": "\"Crate\" by Quaternius, https://poly.pizza/m/3OEFd1AWfa. Licence at https://creativecommons.org/publicdomain/zero/1.0/",
       "polyPizzaId": "3OEFd1AWfa",
       "note": ""
+    },
+    "person1": {
+      "file": "assets/models/person1.glb",
+      "title": "Man",
+      "triCount": 1216,
+      "licence": "CC0 1.0",
+      "attribution": "\"Man\" by Quaternius, https://poly.pizza/m/HMnuH5geEG. Licence at https://creativecommons.org/publicdomain/zero/1.0/",
+      "polyPizzaId": "HMnuH5geEG",
+      "note": "crowd figure — Man"
+    },
+    "person2": {
+      "file": "assets/models/person2.glb",
+      "title": "Farmer",
+      "triCount": 3716,
+      "licence": "CC0 1.0",
+      "attribution": "\"Farmer\" by Quaternius, https://poly.pizza/m/7pn3R6hPvE. Licence at https://creativecommons.org/publicdomain/zero/1.0/",
+      "polyPizzaId": "7pn3R6hPvE",
+      "note": "crowd figure — Farmer"
+    },
+    "person3": {
+      "file": "assets/models/person3.glb",
+      "title": "Woman",
+      "triCount": 3396,
+      "licence": "CC0 1.0",
+      "attribution": "\"Woman\" by Polygonal Mind, https://poly.pizza/m/usAZvwbH0Y. Licence at https://creativecommons.org/publicdomain/zero/1.0/",
+      "polyPizzaId": "usAZvwbH0Y",
+      "note": "crowd figure — Woman"
     }
   }
 }

@@ -21,6 +21,9 @@ const WANTED = [
   { slot: 'tree', query: 'tree', index: 0 },
   { slot: 'barrel', query: 'barrel', index: 0 },
   { slot: 'crate', query: 'wooden crate', index: 0 },
+  { slot: 'person1', query: 'low poly person', index: 0, note: 'crowd figure — Man' },
+  { slot: 'person2', query: 'man standing', index: 2, note: 'crowd figure — Farmer' },
+  { slot: 'person3', query: 'woman character', index: 1, note: 'crowd figure — Woman' },
 ];
 
 async function search(query, limit = 6) {

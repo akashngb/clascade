@@ -14,6 +14,9 @@ const SLOT_CONFIG = {
   tree: { size: 6.5, yaw: 0 },
   barrel: { size: 1.1, yaw: 0 },
   crate: { size: 1.0, yaw: 0 },
+  person1: { size: 1.75, yaw: 0 },
+  person2: { size: 1.8, yaw: 0 },
+  person3: { size: 1.7, yaw: 0 },
 };
 
 function normalize(scene, targetSize, yaw = 0) {
