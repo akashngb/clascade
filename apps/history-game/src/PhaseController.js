@@ -54,6 +54,13 @@ export class PhaseController {
     this.env = this.getEnv(name);
     this.env.group.visible = true;
     this.activeEnvName = name;
+
+    // Apply this environment's backdrop + fog to the shared scene.
+    if (this.env.background) this.game.scene.background = this.env.background;
+    if (this.env.fog && this.game.scene.fog) {
+      this.game.scene.fog.color.set(this.env.fog.color);
+      this.game.scene.fog.density = this.env.fog.density;
+    }
   }
 
   start() { this.goToPhase(0); }

@@ -42,6 +42,7 @@ function makeLabel(text, color = '#f4efe6', size = 44) {
 // ---------------------------------------------------------------------------
 export function buildStreet(scene, assets = { models: {} }) {
   const models = assets?.models || {};
+  const textures = assets?.textures || {};
   const group = new THREE.Group();
 
   // Lights — low warm morning sun with long shadows.
@@ -60,23 +61,29 @@ export function buildStreet(scene, assets = { models: {} }) {
   fill.position.set(20, 12, -10);
   group.add(fill);
 
-  // Ground
-  const ground = new THREE.Mesh(
-    new THREE.PlaneGeometry(120, 160),
-    new THREE.MeshStandardMaterial({ color: 0x554b41, roughness: 0.95 })
-  );
+  // Ground — cobblestone texture if available, else flat colour.
+  const groundMat = new THREE.MeshStandardMaterial({ color: 0x6a6055, roughness: 0.95 });
+  if (textures.cobblestone) {
+    const t = textures.cobblestone.clone();
+    t.needsUpdate = true; t.repeat.set(10, 14);
+    groundMat.map = t; groundMat.color.set(0x8a8378);
+  }
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(120, 160), groundMat);
   ground.rotation.x = -Math.PI / 2;
   ground.position.z = -30;
   ground.receiveShadow = true;
   group.add(ground);
 
-  // Cobbled roadway strip (slightly different tone)
-  const road = new THREE.Mesh(
-    new THREE.PlaneGeometry(10, 150),
-    new THREE.MeshStandardMaterial({ color: 0x48413a, roughness: 1 })
-  );
+  // Cobbled roadway strip (tighter tiling along the street).
+  const roadMat = new THREE.MeshStandardMaterial({ color: 0x554e46, roughness: 1 });
+  if (textures.cobblestone) {
+    const t = textures.cobblestone.clone();
+    t.needsUpdate = true; t.repeat.set(2, 26);
+    roadMat.map = t; roadMat.color.set(0x9a9186);
+  }
+  const road = new THREE.Mesh(new THREE.PlaneGeometry(10, 150), roadMat);
   road.rotation.x = -Math.PI / 2;
-  road.position.set(0, 0.01, -30);
+  road.position.set(0, 0.02, -30);
   road.receiveShadow = true;
   group.add(road);
 
@@ -191,6 +198,8 @@ export function buildStreet(scene, assets = { models: {} }) {
     crowd,
     newspaperStand: stand,
     ring,
+    background: textures.sky || new THREE.Color(0x0a0908),
+    fog: textures.sky ? { color: 0x9c8a6d, density: 0.009 } : { color: 0x0a0908, density: 0.012 },
     dispose: () => disposeGroup(scene, group),
   };
 }
@@ -334,6 +343,8 @@ export function buildAllianceMap(scene) {
     nodes,
     orbitRadius: 26,
     orbitHeight: 12,
+    background: new THREE.Color(0x0a0a0f),
+    fog: { color: 0x0a0a0f, density: 0.014 },
     dispose: () => disposeGroup(scene, group),
   };
 }
@@ -371,6 +382,8 @@ export function buildQuizRoom(scene) {
     focal: new THREE.Vector3(0, 2, 0),
     forward: new THREE.Vector3(0, 0, -1),
     rings,
+    background: new THREE.Color(0x0a0908),
+    fog: { color: 0x0a0908, density: 0.02 },
     dispose: () => disposeGroup(scene, group),
   };
 }

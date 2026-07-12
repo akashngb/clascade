@@ -82,8 +82,39 @@ export async function loadAssets(manifestUrl = '/assets/manifest.json') {
     })
   );
 
+  const textures = await loadTextures();
+
   window.__assetCredits = credits;
-  return { models, credits };
+  return { models, credits, textures };
+}
+
+// Load generated textures (sky backdrop, cobblestone ground).
+async function loadTextures() {
+  const textures = {};
+  let man;
+  try {
+    man = await fetch('/assets/textures-manifest.json').then((r) => (r.ok ? r.json() : null));
+  } catch { man = null; }
+  if (!man?.textures) return textures;
+
+  const tl = new THREE.TextureLoader();
+  await Promise.all(
+    Object.entries(man.textures).map(async ([slot, file]) => {
+      try {
+        const tex = await tl.loadAsync('/' + file.replace(/^\//, ''));
+        tex.colorSpace = THREE.SRGBColorSpace;
+        if (slot === 'cobblestone' || slot === 'ground') {
+          tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+          tex.anisotropy = 4;
+        }
+        textures[slot] = tex;
+        console.log(`[assets] texture "${slot}"`);
+      } catch (e) {
+        console.warn(`[assets] texture "${slot}" failed: ${e.message}`);
+      }
+    })
+  );
+  return textures;
 }
 
 // Clone a loaded template for placement. Returns null if the slot is missing
