@@ -277,14 +277,14 @@ function buildCrowd(count, models = {}) {
 export function buildAllianceMap(scene) {
   const group = new THREE.Group();
 
-  const hemi = new THREE.HemisphereLight(0x334455, 0x0a0a0f, 0.5);
+  const hemi = new THREE.HemisphereLight(0x6a7ea0, 0x0a0a0f, 1.0);
   group.add(hemi);
-  const key = new THREE.DirectionalLight(0xdfe8ff, 0.8);
+  const key = new THREE.DirectionalLight(0xdfe8ff, 1.2);
   key.position.set(10, 20, 12); group.add(key);
 
   const table = new THREE.Mesh(
-    new THREE.CircleGeometry(30, 48),
-    new THREE.MeshStandardMaterial({ color: 0x14161c, roughness: 0.9 })
+    new THREE.CircleGeometry(26, 48),
+    new THREE.MeshStandardMaterial({ color: 0x232a38, roughness: 0.9 })
   );
   table.rotation.x = -Math.PI / 2; group.add(table);
 
@@ -309,7 +309,7 @@ export function buildAllianceMap(scene) {
     const x = Math.cos(n.angle) * R, z = Math.sin(n.angle) * R;
     const pillar = new THREE.Mesh(
       new THREE.CylinderGeometry(1.4, 1.6, 3, 24),
-      new THREE.MeshStandardMaterial({ color: n.color, emissive: n.color, emissiveIntensity: 0.25, roughness: 0.5 })
+      new THREE.MeshStandardMaterial({ color: n.color, emissive: n.color, emissiveIntensity: 0.85, roughness: 0.5 })
     );
     pillar.position.set(x, 1.5, z); pillar.castShadow = true;
     pillar.userData = { ...n, examined: false };
@@ -341,10 +341,10 @@ export function buildAllianceMap(scene) {
     focal: new THREE.Vector3(0, 1, 0),
     forward: new THREE.Vector3(0, 0, -1),
     nodes,
-    orbitRadius: 26,
-    orbitHeight: 12,
-    background: new THREE.Color(0x0a0a0f),
-    fog: { color: 0x0a0a0f, density: 0.014 },
+    orbitRadius: 30,
+    orbitHeight: 20,
+    background: new THREE.Color(0x0d1018),
+    fog: { color: 0x0d1018, density: 0.006 },
     dispose: () => disposeGroup(scene, group),
   };
 }
