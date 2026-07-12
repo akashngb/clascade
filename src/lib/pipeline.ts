@@ -90,7 +90,7 @@ function normalizeLesson(raw: RawLesson): LessonSpec {
       environment: phase.environment,
       cameraMove: phase.cameraMove,
       accent: phase.accent || "#c4614f",
-      assetQueries: phase.assetQueries || [],
+      assetQueries: (phase.assetQueries || []).slice(0, 6),
     },
     interaction: {
       type: phase.interactionType,

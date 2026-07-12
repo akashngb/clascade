@@ -99,7 +99,7 @@ export const lessonResponseSchema = {
           environment: { type: "string" },
           cameraMove: { type: "string", enum: ["date_title_cinematic", "crane_down_to_street", "follow_actor", "slow_motion_orbit", "cutaway", "first_person_walk", "scale_dive", "orbit_subject", "sandbox_wide"] },
           accent: { type: "string" },
-          assetQueries: { type: "array", items: { type: "string" } },
+          assetQueries: { type: "array", maxItems: 6, items: { type: "string" } },
           interactionType: { type: "string", enum: ["explore", "objective", "quiz", "sandbox_params", "dialogue", "none"] },
           interactionPrompt: { type: "string" },
           completionEvent: { type: "string" },
