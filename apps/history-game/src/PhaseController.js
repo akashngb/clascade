@@ -29,6 +29,8 @@ export class PhaseController {
     this._cleanup = [];
     this._transitioning = false;
     window.__telemetry = [];
+    // Ambient life (water, flags, crowd sway) for whichever env is active.
+    this.game.onUpdate((dt) => this.env?.update?.(dt));
   }
 
   emit(evt, data = {}) {
@@ -142,27 +144,21 @@ export class PhaseController {
   setupCinematic(phase) {
     ui.setCinematic(true);
 
-    // Phase 3: drive the car along the wrong-turn route while the camera
-    // follows. The car stays on the roadway (|x| < 3) with a gentle swerve to
-    // suggest the wrong turn — driving it into the building rows looked broken.
+    // Phase 3: drive the car down the quay and visibly turn it into Franz
+    // Josef Street — the wrong turn is a real turn into a real corner. The
+    // route lives in the environment next to the geometry it must thread.
     let actor = null;
     const ctx = this.ctxFor(phase, actor);
-    if (phase.phaseId === 'phase-3' && this.env.car) {
+    if (phase.phaseId === 'phase-3' && this.env.car && this.env.wrongTurn) {
       actor = this.env.car;
-      const path = [
-        new THREE.Vector3(0, 0, -48),
-        new THREE.Vector3(0, 0, -22),
-        new THREE.Vector3(-1.5, 0, -13),
-        new THREE.Vector3(-2.5, 0, -9),
-      ];
-      this.animateAlong(actor, path, 11);
+      this.animateAlong(actor, this.env.wrongTurn.path, 12);
       ctx.actor = actor;
-      // Tight orbit that stays on the town side of the car so it never sweeps
-      // into the buildings that line the street's ±X sides.
-      ctx.orbitRadius = 5;
-      ctx.orbitHeight = 3.2;
-      ctx.orbitStart = Math.PI * 0.35;
-      ctx.orbitSweep = Math.PI * 0.3;
+      // Orbit the stopped car from the quay side of the junction, clear of
+      // both building rows and Schiller's corner.
+      ctx.orbitRadius = 5.5;
+      ctx.orbitHeight = 3.0;
+      ctx.orbitStart = -0.35;
+      ctx.orbitSweep = 0.7;
     }
 
     this.director.playSequence(phase.scene.cameraScript, ctx);
@@ -192,6 +188,7 @@ export class PhaseController {
     ui.showObjective(phase.interaction.objective);
     ui.showHint(true);
     this.fp.enable(new THREE.Vector3(3, 0, 12), 0);
+    if (this.env.fpBounds) this.fp.setBounds(this.env.fpBounds);
 
     const target = this.env.newspaperStand.position;
     let opened = false;
@@ -230,16 +227,18 @@ export class PhaseController {
     ui.setCinematic(false);
     ui.showObjective(phase.interaction.objective);
     ui.showHint(true);
-    this.fp.enable(new THREE.Vector3(6, 0, 9), -0.5);
+    this.fp.enable(new THREE.Vector3(4.5, 0, 2), 0.8);
+    if (this.env.fpBounds) this.fp.setBounds(this.env.fpBounds);
 
-    // Car stalled on the roadway where it stopped to reverse; player cannot
-    // reach it in time through the crowd.
+    // Car stalled where the wrong turn left it — in front of Schiller's,
+    // across the junction from the player; the crowd knot is in between.
+    const stall = this.env.wrongTurn?.stop || new THREE.Vector3(-2.5, 0, -9);
     if (this.env.car) {
-      this.env.car.position.set(-2.5, 0, -9);
-      this.env.car.rotation.y = -0.3;
+      this.env.car.position.copy(stall);
+      this.env.car.rotation.y = this.env.wrongTurn?.stopYaw ?? -0.3;
     }
 
-    const carPos = new THREE.Vector3(-2.5, 0, -9);
+    const carPos = stall.clone();
     let resolved = false;
     let elapsed = 0;
     const MIN_TIME = 8;   // keep the moment on screen at least this long
