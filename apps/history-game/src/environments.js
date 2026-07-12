@@ -552,78 +552,288 @@ function buildCrowd(models = {}, animated = []) {
 }
 
 // ---------------------------------------------------------------------------
-// Alliance map (phase 5) — nations as glowing pillars on a dark table.
+// Alliance map (phase 5) — a war-room campaign table. Nations stand at their
+// real geographic stations on an aged parchment map of Europe; alliance
+// cords tie them together, and once every nation has been examined the
+// declarations of war cascade across the table, dated, like falling dominoes.
 // ---------------------------------------------------------------------------
+
+// Hand-drawn aged map of Europe on a canvas: sea wash, abstract landmasses,
+// graticule, cartouche. Impressionistic, not geographic — the markers carry
+// the meaning.
+function parchmentMap() {
+  const c = document.createElement('canvas');
+  c.width = 1024; c.height = 768;
+  const g = c.getContext('2d');
+
+  // Aged paper base + blotches
+  g.fillStyle = '#cdbb92';
+  g.fillRect(0, 0, 1024, 768);
+  for (let i = 0; i < 26; i++) {
+    const x = Math.random() * 1024, y = Math.random() * 768, r = 50 + Math.random() * 130;
+    const grad = g.createRadialGradient(x, y, 0, x, y, r);
+    grad.addColorStop(0, `rgba(120, 92, 50, ${0.04 + Math.random() * 0.07})`);
+    grad.addColorStop(1, 'rgba(120, 92, 50, 0)');
+    g.fillStyle = grad;
+    g.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+
+  // Sea wash (whole sheet), then land shapes on top
+  g.fillStyle = 'rgba(122, 128, 108, 0.35)';
+  g.fillRect(0, 0, 1024, 768);
+
+  const land = (pts) => {
+    g.beginPath();
+    g.moveTo(pts[0][0], pts[0][1]);
+    for (let i = 1; i < pts.length; i++) {
+      const [x, y] = pts[i];
+      const [px, py] = pts[i - 1];
+      g.quadraticCurveTo(px + (x - px) * 0.3 + (Math.random() - 0.5) * 22, py + (y - py) * 0.3 + (Math.random() - 0.5) * 22, x, y);
+    }
+    g.closePath();
+    g.fillStyle = '#d3c29a';
+    g.fill();
+    g.strokeStyle = 'rgba(70, 54, 30, 0.75)';
+    g.lineWidth = 2.5;
+    g.stroke();
+  };
+
+  // Continental mass (France -> Germany -> Russia sweep, down to the Balkans)
+  land([
+    [200, 420], [255, 330], [330, 300], [420, 260], [520, 230], [660, 200],
+    [880, 180], [1010, 200], [1010, 620], [820, 640], [700, 600], [620, 640],
+    [560, 700], [470, 690], [420, 620], [330, 590], [250, 520], [190, 480],
+  ]);
+  // British Isles
+  land([[180, 180], [230, 150], [270, 190], [255, 270], [205, 300], [165, 260], [160, 210]]);
+  // Scandinavia hint
+  land([[560, 60], [660, 40], [740, 70], [700, 150], [610, 170], [560, 120]]);
+  // Italy boot
+  land([[430, 480], [470, 470], [520, 540], [560, 620], [530, 650], [480, 580], [430, 520]]);
+
+  // Graticule
+  g.strokeStyle = 'rgba(70, 54, 30, 0.16)';
+  g.lineWidth = 1;
+  for (let x = 64; x < 1024; x += 96) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, 768); g.stroke(); }
+  for (let y = 64; y < 768; y += 96) { g.beginPath(); g.moveTo(0, y); g.lineTo(1024, y); g.stroke(); }
+
+  // Cartouche
+  g.strokeStyle = 'rgba(70, 54, 30, 0.8)';
+  g.lineWidth = 3;
+  g.strokeRect(52, 606, 300, 110);
+  g.lineWidth = 1;
+  g.strokeRect(60, 614, 284, 94);
+  g.fillStyle = '#463620';
+  g.textAlign = 'center';
+  g.font = '500 42px Marcellus, Georgia, serif';
+  g.fillText('EUROPA', 202, 660);
+  g.font = '500 22px Marcellus, Georgia, serif';
+  g.fillText('· MCMXIV ·', 202, 692);
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 4;
+  return tex;
+}
+
 export function buildAllianceMap(scene) {
   const group = new THREE.Group();
+  const animated = [];
 
-  const hemi = new THREE.HemisphereLight(0x6a7ea0, 0x0a0a0f, 1.0);
+  // War-room light: one shaded lamp hanging over the table, cool dark walls.
+  const hemi = new THREE.HemisphereLight(0x45506a, 0x0a0806, 0.55);
   group.add(hemi);
-  const key = new THREE.DirectionalLight(0xdfe8ff, 1.2);
-  key.position.set(10, 20, 12); group.add(key);
-
-  const table = new THREE.Mesh(
-    new THREE.CircleGeometry(26, 48),
-    new THREE.MeshStandardMaterial({ color: 0x232a38, roughness: 0.9 })
+  const lamp = new THREE.SpotLight(0xffe2b0, 900, 80, Math.PI * 0.32, 0.55, 1.8);
+  lamp.position.set(0, 26, 0);
+  lamp.target.position.set(0, 0, 0);
+  lamp.castShadow = true;
+  group.add(lamp, lamp.target);
+  const shade = new THREE.Mesh(
+    new THREE.ConeGeometry(2.2, 1.6, 24, 1, true),
+    new THREE.MeshStandardMaterial({ color: 0x1c3a2e, roughness: 0.6, side: THREE.DoubleSide })
   );
-  table.rotation.x = -Math.PI / 2; group.add(table);
+  shade.position.set(0, 24.5, 0);
+  group.add(shade);
+  const cord = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.05, 0.05, 14, 6),
+    new THREE.MeshStandardMaterial({ color: 0x111 })
+  );
+  cord.position.set(0, 31, 0);
+  group.add(cord);
 
+  // The table + parchment map
+  const tableTop = new THREE.Mesh(
+    new THREE.BoxGeometry(46, 2.2, 34),
+    new THREE.MeshStandardMaterial({ color: 0x2e2018, roughness: 0.65 })
+  );
+  tableTop.position.y = -1.2;
+  tableTop.receiveShadow = true;
+  group.add(tableTop);
+  const map = new THREE.Mesh(
+    new THREE.PlaneGeometry(42, 30),
+    new THREE.MeshStandardMaterial({ map: parchmentMap(), roughness: 0.9 })
+  );
+  map.rotation.x = -Math.PI / 2;
+  map.position.y = 0.01;
+  map.receiveShadow = true;
+  group.add(map);
+
+  // Nations at their stations. side: entente | central | spark
   const nations = [
-    { id: 'austria-hungary', name: 'Austria-Hungary', color: 0xd98a4b, angle: Math.PI * 0.5,
-      note: 'Blamed Serbia for the assassination and declared war first.' },
-    { id: 'serbia', name: 'Serbia', color: 0xc0504d, angle: Math.PI * 0.9,
-      note: 'Home of the nationalist cause; refused all of Austria-Hungary’s demands.' },
-    { id: 'russia', name: 'Russia', color: 0x8a6fd9, angle: Math.PI * 1.25,
-      note: 'Pledged to defend Serbia and began mobilising its army.' },
-    { id: 'germany', name: 'Germany', color: 0x6b7280, angle: Math.PI * 0.15,
-      note: 'Backed Austria-Hungary with a “blank cheque” and declared war on Russia and France.' },
-    { id: 'france', name: 'France', color: 0x4b74d9, angle: Math.PI * 1.6,
-      note: 'Allied to Russia — pulled in against Germany.' },
-    { id: 'britain', name: 'Britain', color: 0x4fb0a0, angle: Math.PI * 1.9,
+    { id: 'britain', name: 'Britain', color: 0x4fb0a0, side: 'entente', x: -15, z: -7,
       note: 'Entered when Germany invaded neutral Belgium.' },
+    { id: 'france', name: 'France', color: 0x4b74d9, side: 'entente', x: -9.5, z: 1.5,
+      note: 'Allied to Russia — pulled in against Germany.' },
+    { id: 'germany', name: 'Germany', color: 0x6b7280, side: 'central', x: -1, z: -4,
+      note: 'Backed Austria-Hungary with a “blank cheque” and declared war on Russia and France.' },
+    { id: 'austria-hungary', name: 'Austria-Hungary', color: 0xd98a4b, side: 'central', x: 3.5, z: 2.5,
+      note: 'Blamed Serbia for the assassination and declared war first.' },
+    { id: 'serbia', name: 'Serbia', color: 0xc0504d, side: 'spark', x: 7, z: 8,
+      note: 'Home of the nationalist cause; refused all of Austria-Hungary’s demands.' },
+    { id: 'russia', name: 'Russia', color: 0x8a6fd9, side: 'entente', x: 14, z: -5.5,
+      note: 'Pledged to defend Serbia and began mobilising its army.' },
   ];
 
   const nodes = [];
-  const R = 16;
+  const ringsByNation = {};
   nations.forEach((n) => {
-    const x = Math.cos(n.angle) * R, z = Math.sin(n.angle) * R;
-    const pillar = new THREE.Mesh(
-      new THREE.CylinderGeometry(1.4, 1.6, 3, 24),
-      new THREE.MeshStandardMaterial({ color: n.color, emissive: n.color, emissiveIntensity: 0.85, roughness: 0.5 })
+    const marker = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.55, 0.9, 2.6, 6),
+      new THREE.MeshStandardMaterial({
+        color: n.color, emissive: n.color, emissiveIntensity: 0.35, roughness: 0.5,
+      })
     );
-    pillar.position.set(x, 1.5, z); pillar.castShadow = true;
-    pillar.userData = { ...n, examined: false };
-    group.add(pillar);
+    marker.position.set(n.x, 1.3, n.z);
+    marker.castShadow = true;
+    marker.userData = { ...n, examined: false };
+    group.add(marker);
+    nodes.push(marker);
+
+    // Invitation ring, pulses until examined
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(1.5, 0.06, 8, 36),
+      new THREE.MeshBasicMaterial({ color: 0xc8a45c, transparent: true, opacity: 0.65 })
+    );
+    ring.rotation.x = -Math.PI / 2;
+    ring.position.set(n.x, 0.08, n.z);
+    group.add(ring);
+    ringsByNation[n.id] = ring;
+
     const label = makeLabel(n.name);
-    label.position.set(x, 4.2, z);
+    label.position.set(n.x, 4.1, n.z);
+    label.scale.set(7, 2.2, 1);
     group.add(label);
-    nodes.push(pillar);
+  });
+  animated.push({
+    fn: (t) => {
+      for (const node of nodes) {
+        const ring = ringsByNation[node.userData.id];
+        if (node.userData.examined) { ring.visible = false; continue; }
+        const s = 1 + Math.sin(t * 2.6) * 0.12;
+        ring.scale.setScalar(s);
+        ring.material.opacity = 0.4 + Math.sin(t * 2.6) * 0.25;
+      }
+    },
   });
 
-  const links = [
-    ['austria-hungary', 'germany'], ['austria-hungary', 'serbia'],
-    ['serbia', 'russia'], ['russia', 'france'], ['germany', 'russia'],
-    ['germany', 'france'], ['france', 'britain'],
-  ];
+  // Peacetime alliance cords: brass for the Entente, iron for the Central
+  // Powers, a dim protector's cord from Russia down to Serbia.
   const posOf = (id) => nodes.find((p) => p.userData.id === id).position;
-  const lineMat = new THREE.LineBasicMaterial({ color: 0x55606f, transparent: true, opacity: 0.5 });
-  links.forEach(([a, b]) => {
-    const g = new THREE.BufferGeometry().setFromPoints([
-      posOf(a).clone().setY(1.5), posOf(b).clone().setY(1.5),
-    ]);
-    group.add(new THREE.Line(g, lineMat));
+  const cordLine = (a, b, color, opacity) => {
+    const pts = [];
+    const pa = posOf(a).clone().setY(0.35), pb = posOf(b).clone().setY(0.35);
+    const mid = pa.clone().lerp(pb, 0.5); mid.y = 1.6 + pa.distanceTo(pb) * 0.04;
+    const curve = new THREE.QuadraticBezierCurve3(pa, mid, pb);
+    pts.push(...curve.getPoints(20));
+    const line = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints(pts),
+      new THREE.LineBasicMaterial({ color, transparent: true, opacity })
+    );
+    group.add(line);
+    return curve;
+  };
+  cordLine('britain', 'france', 0xc8a45c, 0.8);
+  cordLine('france', 'russia', 0xc8a45c, 0.8);
+  cordLine('russia', 'serbia', 0xc8a45c, 0.45);
+  cordLine('germany', 'austria-hungary', 0x8a8f98, 0.85);
+
+  // The declarations of war, in order. Each fires a red pulse from aggressor
+  // to target, flares the target, and stamps the date beside it.
+  const declarations = [
+    { from: 'austria-hungary', to: 'serbia', date: '28 JULY' },
+    { from: 'germany', to: 'russia', date: '1 AUG' },
+    { from: 'germany', to: 'france', date: '3 AUG' },
+    { from: 'britain', to: 'germany', date: '4 AUG' },
+  ];
+
+  const pulseMat = new THREE.MeshBasicMaterial({ color: 0xff5a3c });
+  const warLineMat = new THREE.LineBasicMaterial({ color: 0x93392a, transparent: true, opacity: 0.9 });
+  let cascade = null; // { events: [{curve, dateSprite, target}], t }
+
+  const triggerCascade = () => {
+    if (cascade) return;
+    const events = declarations.map((d, i) => {
+      const pa = posOf(d.from).clone().setY(0.5);
+      const pb = posOf(d.to).clone().setY(0.5);
+      const mid = pa.clone().lerp(pb, 0.5); mid.y = 2.4;
+      const curve = new THREE.QuadraticBezierCurve3(pa, mid, pb);
+      const pulse = new THREE.Mesh(new THREE.SphereGeometry(0.32, 12, 12), pulseMat.clone());
+      pulse.visible = false;
+      group.add(pulse);
+      const date = makeLabel(d.date, { color: '#ffb09a', size: 52 });
+      date.scale.set(5, 1.6, 1);
+      date.position.copy(posOf(d.to)).y = 6.2;
+      date.material.opacity = 0;
+      group.add(date);
+      return { ...d, curve, pulse, date, start: i * 2.2, done: false };
+    });
+    cascade = { events, t: 0 };
+  };
+
+  animated.push({
+    fn: (t, dt) => {
+      if (!cascade) return;
+      cascade.t += dt;
+      for (const ev of cascade.events) {
+        const u = (cascade.t - ev.start) / 1.6; // 1.6s travel per pulse
+        if (u < 0) continue;
+        if (u <= 1) {
+          ev.pulse.visible = true;
+          ev.pulse.position.copy(ev.curve.getPoint(u));
+          ev.pulse.scale.setScalar(1 + Math.sin(u * Math.PI) * 0.7);
+        } else if (!ev.done) {
+          ev.done = true;
+          ev.pulse.visible = false;
+          // Draw the war line permanently and flare the target red.
+          group.add(new THREE.Line(
+            new THREE.BufferGeometry().setFromPoints(ev.curve.getPoints(20)), warLineMat
+          ));
+          const target = nodes.find((p) => p.userData.id === ev.to);
+          target.material.emissive.set(0xb0402a);
+          target.material.emissiveIntensity = 1.2;
+        }
+        if (ev.done) ev.date.material.opacity = Math.min(1, ev.date.material.opacity + dt * 1.5);
+      }
+    },
   });
 
   scene.add(group);
+
+  let time = 0;
   return {
     group,
-    focal: new THREE.Vector3(0, 1, 0),
+    focal: new THREE.Vector3(0, 0.5, 0),
     forward: new THREE.Vector3(0, 0, -1),
     nodes,
-    orbitRadius: 30,
-    orbitHeight: 20,
-    background: new THREE.Color(0x0d1018),
-    fog: { color: 0x0d1018, density: 0.006 },
+    triggerCascade,
+    orbitRadius: 26,
+    orbitHeight: 17,
+    background: new THREE.Color(0x0b0d12),
+    fog: { color: 0x0b0d12, density: 0.005 },
+    update: (dt) => {
+      time += dt;
+      for (const a of animated) a.fn(time, dt);
+    },
     dispose: () => disposeGroup(scene, group),
   };
 }

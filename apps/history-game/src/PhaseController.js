@@ -304,6 +304,14 @@ export class PhaseController {
         if (examined >= nodes.length) {
           ui.markObjectiveDone();
           this.emit('objective_complete', { completionEvent: phase.interaction.completionEvent });
+          // Every nation examined — play the declarations of war across the
+          // table, then say what the student just watched happen.
+          this.env.triggerCascade?.();
+          setTimeout(() => {
+            if (this.index === this.spec.phases.indexOf(phase)) {
+              ui.showSubtitle('Six weeks. Four declarations. One continent at war.');
+            }
+          }, 9500);
         }
       }
     };
