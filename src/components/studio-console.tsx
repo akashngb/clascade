@@ -15,7 +15,7 @@ import {
 } from "@xyflow/react";
 import { Group, Panel, Separator } from "react-resizable-panels";
 import { ScenePreview } from "./scene-preview";
-import { sampleLessons } from "@/lib/fixtures";
+import { limitDropLesson, sampleLessons } from "@/lib/fixtures";
 import type { LessonPhase, LessonSpec } from "@/lib/lesson-spec";
 
 type WorkspaceTab = "flow" | "spec" | "renderer" | "scene" | "slides";
@@ -62,7 +62,7 @@ function LessonNode({ data }: NodeProps) {
 const nodeTypes = { lesson: LessonNode };
 
 export function StudioConsole() {
-  const [lesson, setLesson] = useState<LessonSpec>(sampleLessons[0]);
+  const [lesson, setLesson] = useState<LessonSpec>(limitDropLesson);
   const [activeTab, setActiveTab] = useState<WorkspaceTab>("flow");
   const [mobilePane, setMobilePane] = useState<MobilePane>("chat");
   const [mode, setMode] = useState<"Design" | "Build" | "Present">("Build");
@@ -72,13 +72,13 @@ export function StudioConsole() {
   const [pipelineIndex, setPipelineIndex] = useState(0);
   const [error, setError] = useState("");
   const [messages, setMessages] = useState<Array<{ role: "assistant" | "teacher"; text: string }>>([
-    { role: "assistant", text: "I read the Sarajevo source and mapped four teachable moments. The third scene was reframed as a protected viewpoint for Grade 7." },
+    { role: "assistant", text: projectMessage(limitDropLesson) },
   ]);
   const [previewPlaying, setPreviewPlaying] = useState(true);
   const [previewDevice, setPreviewDevice] = useState<PreviewDevice>("desktop");
   const [previewFullscreen, setPreviewFullscreen] = useState(false);
   const [activeVersion, setActiveVersion] = useState("v3");
-  const [selectedPhaseId, setSelectedPhaseId] = useState(sampleLessons[0].phases[0].phaseId);
+  const [selectedPhaseId, setSelectedPhaseId] = useState(limitDropLesson.phases[0].phaseId);
   const [inspector, setInspector] = useState<Inspector>(null);
   const [history, setHistory] = useState<LessonSpec[]>([]);
   const [toast, setToast] = useState("");
@@ -92,15 +92,16 @@ export function StudioConsole() {
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
       try {
-        const saved = localStorage.getItem("clascade.studio.lesson");
+        const saved = localStorage.getItem("clascade.studio.lesson.v2");
         if (saved) {
           const parsed = JSON.parse(saved) as LessonSpec;
           if (parsed.version === "1.0" && parsed.phases?.length) {
             setLesson(parsed);
             setSelectedPhaseId(parsed.phases[0].phaseId);
+            setMessages([{ role: "assistant", text: projectMessage(parsed) }]);
           }
         }
-      } catch { localStorage.removeItem("clascade.studio.lesson"); }
+      } catch { localStorage.removeItem("clascade.studio.lesson.v2"); }
       setHydrated(true);
     });
     return () => cancelAnimationFrame(frame);
@@ -108,7 +109,7 @@ export function StudioConsole() {
 
   useEffect(() => {
     if (!hydrated) return;
-    localStorage.setItem("clascade.studio.lesson", JSON.stringify(lesson));
+    localStorage.setItem("clascade.studio.lesson.v2", JSON.stringify(lesson));
   }, [hydrated, lesson]);
 
   useEffect(() => {
@@ -215,7 +216,10 @@ export function StudioConsole() {
       <header className="studio-topbar">
         <div className="studio-project">
           <Link href="/" className="studio-logo" aria-label="Clascade home"><StudioGlyph /></Link>
-          <span className="studio-project-name">{lesson.title.toLowerCase().replaceAll(" ", "_")}</span>
+          <select className="studio-project-name" value={lesson.lessonId} onChange={(event) => { const next = sampleLessons.find((item) => item.lessonId === event.target.value); if (!next) return; applyLesson(structuredClone(next), `Opened ${next.title}`); setSelectedPhaseId(next.phases[0].phaseId); setMessages([{ role: "assistant", text: projectMessage(next) }]); setInspector(null); }} aria-label="Open project">
+            {!sampleLessons.some((item) => item.lessonId === lesson.lessonId) && <option value={lesson.lessonId}>{lesson.title}</option>}
+            {sampleLessons.map((project) => <option key={project.lessonId} value={project.lessonId}>{project.title}</option>)}
+          </select>
           <div className="studio-crumbs" aria-label="Build stages">
             <span>Sources</span><span>Flow</span><span>Spec</span><span className="active">Build</span>
           </div>
@@ -226,6 +230,7 @@ export function StudioConsole() {
         <div className="studio-actions">
           <button onClick={undo} disabled={!history.length} className="studio-icon-button" aria-label="Undo"><ArrowCounterClockwise size={17} /></button>
           <button onClick={() => setInspector("settings")} className="studio-icon-button" aria-label="Settings"><Gear size={17} /></button>
+          {lesson.gamePath && <Link href={lesson.gamePath} target="_blank" rel="noreferrer" className="studio-open-game"><Play size={14} weight="fill" /> Open game</Link>}
           <button onClick={generate} className="studio-primary"><MagicWand size={16} weight="fill" /> Rebuild</button>
         </div>
       </header>
@@ -262,7 +267,7 @@ export function StudioConsole() {
       </footer>
       {inspector === "phase" && <PhaseInspector key={currentPhase.phaseId} phase={currentPhase} onSave={updatePhase} onDelete={deletePhase} onClose={() => setInspector(null)} />}
       {inspector === "safety" && <SafetyInspector lesson={lesson} onChange={(flags) => applyLesson({ ...lesson, safetyReport: { flags } }, "Safety review updated")} onClose={() => setInspector(null)} />}
-      {inspector === "settings" && <SettingsInspector lesson={lesson} onChange={(next) => applyLesson(next, "Workspace settings saved")} onReset={() => { setHistory((items) => [...items, structuredClone(lesson)]); setLesson(sampleLessons[0]); setSelectedPhaseId(sampleLessons[0].phases[0].phaseId); setToast("Workspace reset"); }} onClose={() => setInspector(null)} />}
+      {inspector === "settings" && <SettingsInspector lesson={lesson} onChange={(next) => applyLesson(next, "Workspace settings saved")} onReset={() => { setHistory((items) => [...items, structuredClone(lesson)]); setLesson(limitDropLesson); setSelectedPhaseId(limitDropLesson.phases[0].phaseId); setToast("Workspace reset"); }} onClose={() => setInspector(null)} />}
       {toast && <div className="studio-toast" role="status"><CheckCircle size={15} weight="fill" />{toast}</div>}
     </main>
   );
@@ -316,7 +321,7 @@ function ChatPanel({ lesson, messages, prompt, setPrompt, source, setSource, gen
         {messages.map((message, index) => message.role === "assistant" ? (
           <div className="studio-assistant-message" key={`${message.role}-${index}`}>
             <span className="studio-assistant-mark"><Sparkle size={13} weight="fill" /></span>
-            <div><p>{message.text}</p>{index === 0 && <div className="studio-message-actions"><button onClick={onApprove}><Check size={13} /> Keep adjustment</button><button onClick={onReviewSafety}>Review safety</button></div>}</div>
+            <div><p>{message.text}</p>{index === 0 && lesson.safetyReport.flags.length > 0 && <div className="studio-message-actions"><button onClick={onApprove}><Check size={13} /> Keep adjustment</button><button onClick={onReviewSafety}>Review safety</button></div>}</div>
           </div>
         ) : <div className="studio-teacher-message" key={`${message.role}-${index}`}>{message.text}</div>)}
         {generating && <div className="studio-pipeline"><div className="studio-pipeline-title"><CircleNotch size={15} className="animate-spin" /> Building lesson spec</div>{pipelineSteps.map((step, index) => <div key={step} className={index < pipelineIndex ? "done" : index === pipelineIndex ? "active" : ""}><span>{index < pipelineIndex ? <Check size={11} /> : String(index + 1).padStart(2, "0")}</span>{step}</div>)}</div>}
@@ -387,7 +392,7 @@ function SlidesPanel({ lesson, onSelectPhase }: { lesson: LessonSpec; onSelectPh
 
 function PreviewPanel({ lesson, phase, playing, setPlaying, device, setDevice, fullscreen, setFullscreen, version, setVersion, onPublish, onNotice }: { lesson: LessonSpec; phase: LessonPhase; playing: boolean; setPlaying: (value: boolean) => void; device: PreviewDevice; setDevice: (device: PreviewDevice) => void; fullscreen: boolean; setFullscreen: (value: boolean) => void; version: string; setVersion: (version: string) => void; onPublish: () => void; onNotice: (message: string) => void }) {
   const share = async () => {
-    const url = `${window.location.origin}/play/${lesson.classCode || "CELL42"}`;
+    const url = `${window.location.origin}${lesson.gamePath || `/play/${lesson.classCode || "CELL42"}`}`;
     await navigator.clipboard.writeText(url);
     onNotice("Student link copied");
   };
@@ -397,7 +402,7 @@ function PreviewPanel({ lesson, phase, playing, setPlaying, device, setDevice, f
       <div className="studio-preview-body">
         <div className="studio-device-bar"><button onClick={() => setDevice("desktop")} className={device === "desktop" ? "active" : ""} aria-label="Desktop preview"><Monitor size={13} /></button><button onClick={() => setDevice("mobile")} className={device === "mobile" ? "active" : ""} aria-label="Mobile preview"><DeviceMobile size={13} /></button><span>{device === "desktop" ? "100%" : "390 px"}</span></div>
         <div className={`studio-artifact-frame ${device === "mobile" ? "mobile" : ""}`}>
-          <ScenePreview accent={phase.scene.accent} />
+          {lesson.gamePath === "/games/limit-drop" ? <LimitDropMiniPreview /> : <ScenePreview accent={phase.scene.accent} />}
           <div className="studio-artifact-shade" />
           <div className="studio-artifact-top"><span>Phase 02</span><span>{lesson.subject}</span></div>
           <div className="studio-artifact-copy"><span>Explore</span><h2>{phase.beatTitle}</h2><p>{phase.interaction.prompt}</p></div>
@@ -407,10 +412,14 @@ function PreviewPanel({ lesson, phase, playing, setPlaying, device, setDevice, f
       </div>
       <div className="studio-preview-footer">
         <div className="studio-version-row"><span>Version</span>{["v1", "v2", "v3"].map((item) => <button onClick={() => { setVersion(item); onNotice(`Previewing ${item}`); }} key={item} className={version === item ? "active" : ""}>{item}</button>)}</div>
-        <div className="studio-publish-row"><Link href={`/play/${lesson.classCode || "CELL42"}`}>Open student view <ArrowRight size={13} /></Link><button onClick={onPublish}><ShareNetwork size={14} /> {lesson.status === "published" ? lesson.classCode : "Publish"}</button></div>
+        <div className="studio-publish-row"><Link href={lesson.gamePath || `/play/${lesson.classCode || "CELL42"}`} target={lesson.gamePath ? "_blank" : undefined} rel={lesson.gamePath ? "noreferrer" : undefined}>{lesson.gamePath ? "Open game" : "Open student view"} <ArrowRight size={13} /></Link><button onClick={onPublish}><ShareNetwork size={14} /> {lesson.status === "published" ? lesson.classCode : "Publish"}</button></div>
       </div>
     </section>
   );
+}
+
+function LimitDropMiniPreview() {
+  return <div className="studio-limit-mini"><div className="studio-limit-moon" /><div className="studio-limit-grid" /><svg viewBox="0 0 300 180" preserveAspectRatio="none" aria-hidden="true"><path d="M18 45 C75 58 108 40 145 78 S220 132 284 126" fill="none" stroke="#00e7c5" strokeWidth="3" /><ellipse cx="28" cy="42" rx="7" ry="10" fill="#fff0c9" /><path d="M258 124h28l-5 19h-18z" fill="#ad6c31" stroke="#4c2a12" strokeWidth="2" /></svg><span>f(x) = 6 - 0.45(x + 7)</span></div>;
 }
 
 function PhaseInspector({ phase, onSave, onDelete, onClose }: { phase: LessonPhase; onSave: (phase: LessonPhase) => void; onDelete: (phaseId: string) => void; onClose: () => void }) {
@@ -469,4 +478,9 @@ function StudioGlyph() {
 function createClassCode() {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   return Array.from({ length: 6 }, () => alphabet[Math.floor(Math.random() * alphabet.length)]).join("");
+}
+
+function projectMessage(lesson: LessonSpec) {
+  if (lesson.lessonId === "limit-drop") return "I analyzed the imported Limit Drop game and converted it into a six-beat algebra lesson. The flow progresses from linear slope to quadratics, domain restrictions, endpoint targeting, and a piecewise-function boss level. The playable artifact is attached to this spec.";
+  return `I opened ${lesson.title} and mapped ${lesson.phases.length} teachable phases from its validated lesson spec. Select a flow node to revise the objective, narration, interaction, or teacher notes.`;
 }

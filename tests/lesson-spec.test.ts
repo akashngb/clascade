@@ -23,3 +23,11 @@ test("every phase declares renderer-safe assets and completion events", () => {
     }
   }
 });
+
+test("Limit Drop is packaged as a generated playable lesson", () => {
+  const lesson = sampleLessons.find((item) => item.lessonId === "limit-drop");
+  assert.ok(lesson);
+  assert.equal(lesson.template, "parameter_sandbox");
+  assert.equal(lesson.gamePath, "/games/limit-drop");
+  assert.equal(lesson.phases.length, 6);
+});

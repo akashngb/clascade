@@ -67,6 +67,8 @@ export const lessonSpecSchema = z.object({
   status: z.enum(["draft", "review", "published"]),
   summary: z.string(),
   createdAt: z.string(),
+  gamePath: z.string().startsWith("/").optional(),
+  sourceType: z.enum(["prompt", "upload", "imported_game"]).optional(),
   classCode: z.string().length(6).optional(),
   phases: z.array(phaseSchema).min(3).max(10),
   safetyReport: z.object({ flags: z.array(safetyFlagSchema) }),
