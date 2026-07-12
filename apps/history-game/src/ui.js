@@ -375,6 +375,9 @@ canvas { display: block; }
 #start .poster::before {
   content: ""; position: absolute; inset: 6px;
   border: 1px solid rgba(200,164,92,.22);
+  /* Decorative frame paints above the poster's static children — without
+     this it swallows every hover and click on the begin button. */
+  pointer-events: none;
 }
 #start .presents {
   font-size: 11px; letter-spacing: .5em; text-transform: uppercase;
