@@ -3,3 +3,17 @@ dist/
 .DS_Store
 *.log
 .vite/
+
+# --- secrets: never commit ---
+.env
+.env.*
+!.env.example
+secrets/
+*service-account*.json
+*sa*.json
+*.pem
+*.key
+
+# downloaded/generated assets (large binaries; kept out of git)
+apps/history-game/public/assets/models/
+apps/history-game/public/assets/audio/
