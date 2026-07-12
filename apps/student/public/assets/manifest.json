@@ -1,0 +1,85 @@
+{
+  "$comment": "Asset manifest for the biology lesson. The renderer 'shops' this list before falling back to procedural placeholders (CLAUDE.md §8). Drop GLB/audio files into the folders below and fill in the `file` fields — nothing else in the code needs to change.",
+  "version": 1,
+  "lessonId": "bio-dna-transcription-v1",
+  "models": [
+    {
+      "id": "dna_helix",
+      "file": "models/dna_helix.glb",
+      "placeholder": "loaded — real GLB in the DNA containment capsule (DnaSpecimen.jsx)",
+      "tags": ["dna", "double-helix", "specimen"],
+      "recommended": "Already wired. Swap file to upgrade the specimen model.",
+      "usedBy": ["dna capsule (all phases)"]
+    },
+    {
+      "id": "cell_specimen",
+      "file": null,
+      "placeholder": "procedural cell blob (PlaceholderSpecimen.jsx kind='cell')",
+      "tags": ["cell", "organelles"],
+      "recommended": "Sketchfab/Meshy animal cell GLB — for the locked Specimen 02 capsule",
+      "usedBy": ["cell capsule"]
+    },
+    {
+      "id": "protein_fold",
+      "file": null,
+      "placeholder": "procedural residue chain (PlaceholderSpecimen.jsx kind='protein')",
+      "tags": ["protein", "fold", "alphafold"],
+      "recommended": "PDB→GLB (e.g. Callio_Labs folds) for the locked Specimen 03 capsule",
+      "usedBy": ["protein capsule"]
+    },
+    {
+      "id": "bacteriophage",
+      "file": null,
+      "placeholder": "procedural phage (PlaceholderSpecimen.jsx kind='virus')",
+      "tags": ["virus", "phage"],
+      "recommended": "'Bacteriophage Anatomy' by Nima on Sketchfab (id 7f423312ba994efb9a1f35ed548348b7). Download the GLB, save as models/bacteriophage.glb, then set CAPSULES[virus].model to '/assets/models/bacteriophage.glb' in worldConfig.js.",
+      "sourceUrl": "https://sketchfab.com/3d-models/bacteriophage-anatomy-7f423312ba994efb9a1f35ed548348b7",
+      "usedBy": ["virus capsule"]
+    },
+    {
+      "id": "rna_polymerase",
+      "file": null,
+      "placeholder": "procedural icosahedron (RnaPolymerase.jsx)",
+      "tags": ["enzyme", "protein", "transcription"],
+      "recommended": "Sketchfab CC 'RNA polymerase' or generic enzyme GLB",
+      "usedBy": ["p4-transcription"]
+    },
+    {
+      "id": "nucleus_interior",
+      "file": null,
+      "placeholder": "MembraneShell + Motes (Environment.jsx)",
+      "tags": ["nucleus", "membrane", "organelle"],
+      "recommended": "Meshy.ai generated nuclear envelope / nucleus interior",
+      "usedBy": ["p2-helix", "p3-pairing", "p4-transcription"]
+    },
+    {
+      "id": "cell_interior",
+      "file": null,
+      "placeholder": "MembraneShell + Motes (Environment.jsx)",
+      "tags": ["cell", "cytoplasm", "organelles"],
+      "recommended": "Meshy.ai / Sketchfab cell interior with organelles",
+      "usedBy": ["p1-arrival", "p5-export"]
+    },
+    {
+      "id": "nucleotide",
+      "file": null,
+      "placeholder": "procedural sphere (Nucleotide.jsx)",
+      "tags": ["base", "molecule"],
+      "recommended": "Optional stylized nucleotide GLB per base",
+      "usedBy": ["p2-helix", "p3-pairing", "p4-transcription"]
+    }
+  ],
+  "audio": [
+    { "id": "narration_p1", "file": null, "recommended": "Chirp 3 teacher voice (CLAUDE.md §5)" },
+    { "id": "music_bed", "file": null, "recommended": "Lyria 3 Clip — mood: 'curious wonder'" },
+
+    { "id": "lesson_start", "file": "audio/lesson_start.ogg", "event": "lesson_start", "source": "Kenney Sci-Fi Sounds (forceField) · CC0", "usedBy": ["Begin button"] },
+    { "id": "door_open", "file": "audio/door_open.ogg", "event": "phase_enter", "source": "Kenney Sci-Fi Sounds (doorOpen) · CC0", "usedBy": ["room-to-room transition"] },
+    { "id": "base_collect", "file": "audio/base_collect.ogg", "event": "base_identified", "source": "Kenney Interface Sounds (glass) · CC0", "usedBy": ["p2 vial pickup"] },
+    { "id": "pair_correct", "file": "audio/pair_correct.ogg", "event": "pair_correct", "source": "Kenney Interface Sounds (confirmation) · CC0", "usedBy": ["p3/p4 correct answer"] },
+    { "id": "pair_wrong", "file": "audio/pair_wrong.ogg", "event": "pair_wrong", "source": "Kenney Interface Sounds (error) · CC0", "usedBy": ["p3/p4 wrong answer"] },
+    { "id": "lesson_complete", "file": "audio/lesson_complete.ogg", "event": "lesson_complete", "source": "Kenney Music Jingles (pizzicato) · CC0", "usedBy": ["finish overlay"] },
+    { "id": "ambient_lab", "file": "audio/ambient_lab.ogg", "loop": true, "source": "Kenney Sci-Fi Sounds (spaceEngineLow) · CC0", "usedBy": ["looping lab hum, whole lesson"] },
+    { "id": "ui_click", "file": "audio/ui_click.ogg", "source": "Kenney Interface Sounds (select) · CC0", "usedBy": ["available via playSound('ui_click')"] }
+  ]
+}

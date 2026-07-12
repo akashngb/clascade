@@ -1,0 +1,16 @@
+{
+  "name": "@slidequest/pipeline",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "SlideQuest generation pipeline — turns a lesson description into a validated Lesson Spec via Gemini on Vertex AI.",
+  "bin": {
+    "sq-generate": "./generate.js"
+  },
+  "scripts": {
+    "generate": "node generate.js"
+  },
+  "dependencies": {
+    "google-auth-library": "^9.14.0"
+  }
+}
