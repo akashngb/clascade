@@ -3,7 +3,7 @@ import { CameraDirector } from './CameraDirector.js';
 import { FirstPersonControls } from './FirstPersonControls.js';
 import { PhaseController } from './PhaseController.js';
 import { loadAssets } from './AssetLoader.js';
-import { initNarration, setMuted, isMuted } from './narration.js';
+import { initNarration, setMuted, isMuted, pauseNarration, resumeNarration } from './narration.js';
 import * as ui from './ui.js';
 
 // Boot: build UI, load the Lesson Spec, wire the engine, and hand phase
@@ -12,7 +12,7 @@ import * as ui from './ui.js';
 
 async function boot() {
   ui.initUI();
-  initNarration();
+  await initNarration();
 
   const spec = await fetch('/sarajevo-1914.json').then((r) => r.json());
   const assets = await loadAssets('/assets/manifest.json');
@@ -34,8 +34,8 @@ async function boot() {
       paused = !paused;
       game.setPaused(paused);
       ui.setPaused(paused);
-      if (paused && 'speechSynthesis' in window) window.speechSynthesis.pause();
-      else if ('speechSynthesis' in window) window.speechSynthesis.resume();
+      if (paused) pauseNarration();
+      else resumeNarration();
     },
     onMute: () => {
       setMuted(!isMuted());

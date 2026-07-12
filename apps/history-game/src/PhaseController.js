@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { buildStreet, buildAllianceMap, buildQuizRoom } from './environments.js';
 import * as ui from './ui.js';
-import { speak, stopNarration } from './narration.js';
+import { playNarration, stopNarration } from './narration.js';
 
 // Sequences the lesson phase by phase and wires each interaction type to the
 // scene. Teacher-controlled: it never auto-advances (spec §6.2) — next()/prev()
@@ -98,7 +98,7 @@ export class PhaseController {
     setTimeout(() => {
       if (this.index !== n) return; // teacher already moved on
       ui.showSubtitle(phase.narration.text);
-      speak(phase.narration.text);
+      playNarration(phase.phaseId, phase.narration.text);
     }, 900);
 
     this._transitioning = false;
