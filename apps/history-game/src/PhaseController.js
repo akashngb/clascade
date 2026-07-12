@@ -139,20 +139,28 @@ export class PhaseController {
   setupCinematic(phase) {
     ui.setCinematic(true);
 
-    // Phase 3: drive the car along the wrong-turn route while the camera follows.
+    // Phase 3: drive the car along the wrong-turn route while the camera
+    // follows. The car stays on the roadway (|x| < 3) with a gentle swerve to
+    // suggest the wrong turn — driving it into the building rows looked broken.
     let actor = null;
+    const ctx = this.ctxFor(phase, actor);
     if (phase.phaseId === 'phase-3' && this.env.car) {
       actor = this.env.car;
       const path = [
         new THREE.Vector3(0, 0, -48),
-        new THREE.Vector3(0, 0, -18),
-        new THREE.Vector3(-2, 0, -11),
-        new THREE.Vector3(-12, 0, -8),
+        new THREE.Vector3(0, 0, -22),
+        new THREE.Vector3(-1.5, 0, -13),
+        new THREE.Vector3(-2.5, 0, -9),
       ];
       this.animateAlong(actor, path, 11);
+      ctx.actor = actor;
+      // Tight, street-contained orbit around the stopped car.
+      ctx.orbitRadius = 6.5;
+      ctx.orbitHeight = 4.2;
+      ctx.orbitStart = Math.PI * 0.2;
     }
 
-    this.director.playSequence(phase.scene.cameraScript, this.ctxFor(phase, actor));
+    this.director.playSequence(phase.scene.cameraScript, ctx);
   }
 
   // Move an object along a waypoint path over `duration`, facing travel dir.
@@ -215,17 +223,18 @@ export class PhaseController {
   setupSafetyPhase(phase) {
     ui.setCinematic(false);
     ui.showObjective(phase.interaction.objective);
-    this.fp.enable(new THREE.Vector3(8, 0, 10), -0.4);
+    this.fp.enable(new THREE.Vector3(6, 0, 9), -0.5);
 
-    // Car stalled on the side street; player cannot reach it in time.
+    // Car stalled on the roadway where it stopped to reverse; player cannot
+    // reach it in time through the crowd.
     if (this.env.car) {
-      this.env.car.position.set(-9, 0, -8);
-      this.env.car.rotation.y = Math.PI / 2;
+      this.env.car.position.set(-2.5, 0, -9);
+      this.env.car.rotation.y = -0.3;
     }
 
     let remaining = 9;
     let resolved = false;
-    const carPos = new THREE.Vector3(-9, 0, -8);
+    const carPos = new THREE.Vector3(-2.5, 0, -9);
 
     const resolve = () => {
       if (resolved) return;

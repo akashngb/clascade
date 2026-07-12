@@ -106,15 +106,22 @@ export class CameraDirector {
         break;
       }
 
-      // Trail a moving actor. Blends in from the captured start, then tracks.
+      // Trail a moving actor from behind-and-to-the-side, looking past it in
+      // its travel direction so the scene ahead (not the empty end) is framed.
       case 'follow_actor': {
         const actor = this.ctx.actor;
         const target = actor ? actor.position.clone() : focal;
-        const offset = new THREE.Vector3(6, 3.6, 6);
-        const desired = target.clone().add(offset);
-        const blend = Math.min(c.elapsed / 1.2, 1);
+        const ry = actor ? actor.rotation.y : 0;
+        const forward = new THREE.Vector3(Math.sin(ry), 0, Math.cos(ry));
+        const right = new THREE.Vector3(forward.z, 0, -forward.x);
+        const desired = target.clone()
+          .add(forward.clone().multiplyScalar(-7.5)) // behind
+          .add(right.clone().multiplyScalar(3))       // to the side
+          .setY(3.2);                                 // camera height
+        const blend = Math.min(c.elapsed / 1.3, 1);
         cam.position.lerpVectors(c.startPos, desired, easeOut(blend));
-        cam.quaternion.copy(this._lookQuat(cam.position, target.clone().setY(1.4)));
+        const look = target.clone().add(forward.clone().multiplyScalar(3)).setY(1.3);
+        cam.quaternion.copy(this._lookQuat(cam.position, look));
         break;
       }
 
