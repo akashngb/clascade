@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { buildStreet, buildAllianceMap, buildQuizRoom } from './environments.js';
 import * as ui from './ui.js';
 import { playNarration, stopNarration } from './narration.js';
+import { playPhaseMusic } from './music.js';
 
 // Sequences the lesson phase by phase and wires each interaction type to the
 // scene. Teacher-controlled: it never auto-advances (spec §6.2) — next()/prev()
@@ -86,6 +87,7 @@ export class PhaseController {
     ui.setNavEnabled(n > 0, n < this.spec.phases.length - 1);
 
     await ui.fade(false);
+    playPhaseMusic(phase.phaseId);
     this.emit('phase_enter');
 
     // Chapter title card, then narration.
