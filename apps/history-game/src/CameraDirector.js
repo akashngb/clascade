@@ -15,7 +15,10 @@ export class CameraDirector {
     this.current = null;
     this.ctx = {};
     this._resolve = null;
-    this._probe = new THREE.Object3D(); // for computing lookAt quaternions
+    // Probe for computing lookAt quaternions. MUST be a camera: Object3D's
+    // lookAt points +Z at the target, while cameras view along -Z — a plain
+    // probe hands the camera a quaternion facing 180° away from its subject.
+    this._probe = new THREE.PerspectiveCamera();
   }
 
   // Build a quaternion that looks from `pos` toward `target`.
