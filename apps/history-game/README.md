@@ -21,6 +21,24 @@ Opens on http://localhost:5173.
 - **Teacher bar (bottom):** Prev / Next phase, Pause, mute narration.
 - **Walking phases:** `W A S D` / arrow keys to move, drag mouse to look, `E` to interact.
 
+## Assets (server-side generation)
+
+Model/audio/texture binaries are **not** committed (see root `.gitignore`) —
+regenerate them from the manifests. All scripts read keys from the gitignored
+repo-root `.env` (copy `.env.example`) and keep them server-side; only static
+files reach the client.
+
+```bash
+node tools/fetch-assets.mjs    # CC 3D models from Poly Pizza -> public/assets/models/
+node tools/gen-narration.mjs   # Chirp 3 voice per phase     -> public/assets/audio/narration/
+node tools/gen-music.mjs       # Lyria mood beds per phase    -> public/assets/audio/music/
+node tools/gen-textures.mjs    # Gemini sky + cobblestone     -> public/assets/textures/
+```
+
+Each writes a `*-manifest.json` (committed) that the renderer "shops"; every
+asset has a primitive / browser-TTS fallback, so the game runs even with no
+generated assets. Models are CC-licensed — attributions live in the manifest.
+
 ## Structure
 
 | File | Role |
@@ -32,5 +50,8 @@ Opens on http://localhost:5173.
 | `src/environments.js` | Grey-box world builders (street, alliance map, quiz room) |
 | `src/FirstPersonControls.js` | Walk + look for objective phases |
 | `src/ui.js` | Title cards, narration subtitles, objectives, quiz, teacher bar |
-| `src/narration.js` | Browser TTS narration (stand-in for Chirp voice) |
+| `src/AssetLoader.js` | Loads/normalizes GLBs + textures from the manifests |
+| `src/narration.js` | Chirp voice MP3 playback, browser-TTS fallback |
+| `src/music.js` | Per-phase Lyria beds with crossfade |
+| `tools/` | Server-side asset generators (Poly Pizza, Chirp, Lyria, Gemini) |
 | `public/sarajevo-1914.json` | The Lesson Spec fixture this build renders |
