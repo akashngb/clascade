@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { instance } from './AssetLoader.js';
 
 // Grey-box world builders. Everything here is primitives + lighting + fog +
 // color grade — the spec's bet that good lighting beats bad models. Each
@@ -39,7 +40,8 @@ function makeLabel(text, color = '#f4efe6', size = 44) {
 // Sarajevo street (phases 1–4)
 // Street runs down the -Z axis; buildings line x = ±8.
 // ---------------------------------------------------------------------------
-export function buildStreet(scene) {
+export function buildStreet(scene, assets = { models: {} }) {
+  const models = assets?.models || {};
   const group = new THREE.Group();
 
   // Lights — low warm morning sun with long shadows.
@@ -108,18 +110,36 @@ export function buildStreet(scene) {
     addBuilding(9 + rand(-0.6, 0.6), z, 1);
   }
 
-  // Lamp posts
+  // Lamp posts — real GLB if available, else primitive; warm bulb either way.
   const lampMat = new THREE.MeshStandardMaterial({ color: 0x20201c, roughness: 0.7, metalness: 0.3 });
   const glowMat = new THREE.MeshStandardMaterial({ color: 0xffd98a, emissive: 0xffcf7a, emissiveIntensity: 1.4 });
   for (let z = 8; z >= -54; z -= 12) {
     for (const sx of [-5.4, 5.4]) {
-      const post = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.16, 5, 8), lampMat);
-      post.position.set(sx, 2.5, z); post.castShadow = true;
-      group.add(post);
-      const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.28, 10, 10), glowMat);
-      bulb.position.set(sx, 5.1, z);
+      const lampModel = instance(models, 'lamp');
+      if (lampModel) {
+        lampModel.position.set(sx, 0, z);
+        group.add(lampModel);
+      } else {
+        const post = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.16, 5, 8), lampMat);
+        post.position.set(sx, 2.5, z); post.castShadow = true;
+        group.add(post);
+      }
+      const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.26, 10, 10), glowMat);
+      bulb.position.set(sx, 5.0, z);
       group.add(bulb);
     }
+  }
+
+  // Scattered street props (benches, trees, barrels, crates) — clones of GLBs.
+  const scatter = [
+    ['tree', [-5.8, -3], 0], ['tree', [5.8, -20], 1.2], ['tree', [-6.0, -34], 2.4],
+    ['bench', [5.3, -2], -Math.PI / 2], ['bench', [-5.3, -16], Math.PI / 2],
+    ['barrel', [5.7, -9], 0], ['barrel', [-5.8, -26], 0],
+    ['crate', [5.6, -13], 0.5], ['crate', [5.9, -13.7], -0.3],
+  ];
+  for (const [slot, [x, z], ry] of scatter) {
+    const m = instance(models, slot);
+    if (m) { m.position.set(x, 0, z); m.rotation.y = ry; group.add(m); }
   }
 
   // Newspaper stand (phase-2 objective target) at (5, 0, -6)
@@ -151,10 +171,10 @@ export function buildStreet(scene) {
   stand.position.set(5, 0, -6);
   group.add(stand);
 
-  // The motorcade car (actor)
-  const car = buildCar();
+  // The motorcade car (actor) — the recognizability-critical GLB, else primitive.
+  const car = instance(models, 'car') || buildCar();
   car.position.set(0, 0, -45);
-  car.rotation.y = Math.PI; // facing toward player (+Z travel later flipped as needed)
+  car.rotation.y = Math.PI;
   group.add(car);
 
   // Crowd lining the sidewalks

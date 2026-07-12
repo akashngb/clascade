@@ -2,6 +2,7 @@ import { createGame } from './game.js';
 import { CameraDirector } from './CameraDirector.js';
 import { FirstPersonControls } from './FirstPersonControls.js';
 import { PhaseController } from './PhaseController.js';
+import { loadAssets } from './AssetLoader.js';
 import { initNarration, setMuted, isMuted } from './narration.js';
 import * as ui from './ui.js';
 
@@ -14,6 +15,7 @@ async function boot() {
   initNarration();
 
   const spec = await fetch('/sarajevo-1914.json').then((r) => r.json());
+  const assets = await loadAssets('/assets/manifest.json');
 
   const game = createGame();
   const director = new CameraDirector(game.camera);
@@ -22,7 +24,7 @@ async function boot() {
   game.onUpdate((dt) => director.update(dt));
   game.onUpdate((dt) => fp.update(dt));
 
-  const controller = new PhaseController(game, spec, director, fp);
+  const controller = new PhaseController(game, spec, director, fp, assets);
 
   let paused = false;
   ui.onTeacherControls({

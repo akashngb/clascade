@@ -15,11 +15,12 @@ const ENV_BUILDERS = {
 };
 
 export class PhaseController {
-  constructor(game, spec, director, fp) {
+  constructor(game, spec, director, fp, assets = { models: {} }) {
     this.game = game;
     this.spec = spec;
     this.director = director;
     this.fp = fp;
+    this.assets = assets;
     this.index = -1;
     this.envs = {};       // cached by environment name
     this.activeEnvName = null;
@@ -39,7 +40,7 @@ export class PhaseController {
   getEnv(name) {
     if (!this.envs[name]) {
       const build = ENV_BUILDERS[name] || buildStreet;
-      const env = build(this.game.scene);
+      const env = build(this.game.scene, this.assets);
       env.group.visible = false;
       this.envs[name] = env;
     }
