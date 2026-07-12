@@ -8,9 +8,9 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 // Target max-dimension (metres) + optional yaw correction per slot.
 const SLOT_CONFIG = {
-  // The Old Car GLB's nose is offset right of +Z; counter-rotate so it
+  // The Old Car GLB's nose is offset ~80° right of +Z; counter-rotate so it
   // faces its direction of travel.
-  car: { size: 4.6, yaw: Math.PI / 4 },
+  car: { size: 4.6, yaw: (80 * Math.PI) / 180 },
   lamp: { size: 5.2, yaw: 0 },
   bench: { size: 1.8, yaw: 0 },
   tree: { size: 6.5, yaw: 0 },
