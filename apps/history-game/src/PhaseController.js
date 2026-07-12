@@ -81,6 +81,8 @@ export class PhaseController {
     this.director.stop();
     this.fp.disable();
     this.runCleanup();
+    this._narrationEnd = null;
+    this._resolveAtMin = false;
     ui.hideObjective();
     ui.hidePrompt();
     ui.hideSubtitle();
@@ -107,7 +109,7 @@ export class PhaseController {
     setTimeout(() => {
       if (this.index !== n) return; // teacher already moved on
       ui.showSubtitle(phase.narration.text);
-      playNarration(phase.phaseId, phase.narration.text);
+      playNarration(phase.phaseId, phase.narration.text, { onEnd: () => this._narrationEnd?.() });
     }, 900);
 
     this._transitioning = false;
@@ -232,33 +234,40 @@ export class PhaseController {
       this.env.car.rotation.y = -0.3;
     }
 
-    let remaining = 9;
-    let resolved = false;
     const carPos = new THREE.Vector3(-2.5, 0, -9);
+    let resolved = false;
+    let elapsed = 0;
+    const MIN_TIME = 8;   // keep the moment on screen at least this long
+    const CAP_TIME = 24;  // hard fallback if narration-end never fires (muted)
 
     const resolve = () => {
       if (resolved) return;
       resolved = true;
-      ui.setTimer(null);
       ui.hideObjective();
       this.fp.disable();
       ui.setCinematic(true);
-      stopNarration(); // audio drops out for the cutaway
-      this.director.playSequence(
-        [{ move: 'cutaway', duration: 5 }],
-        this.ctxFor(phase)
-      ).then(() => {
+      // Cutaway that keeps the scene framed (crane to a high 3/4 on the car),
+      // never a bare sky shot. Narration has already finished, so nothing is cut.
+      const ctx = this.ctxFor(phase);
+      ctx.focal = carPos.clone();
+      this.director.playSequence([{ move: 'cutaway', duration: 5.5 }], ctx).then(() => {
         ui.showTitleCard('10:45 A.M. · 28 JUNE 1914', 'The shot that started a war.');
         this.emit('objective_complete', { completionEvent: phase.interaction.completionEvent, reached: false });
       });
     };
 
+    // Never interrupt narration: wait for it to finish (with a minimum on-screen
+    // time). Reaching the car does not trigger the cutaway.
+    this._narrationEnd = () => {
+      if (elapsed >= MIN_TIME) resolve();
+      else this._resolveAtMin = true;
+    };
+
     const stop = this.game.onUpdate((dt) => {
       if (resolved) return;
-      remaining -= dt;
-      ui.setTimer(remaining);
-      // Reaching the car also triggers the cutaway — the moment is never playable.
-      if (this.fp.position.distanceTo(carPos) < 4 || remaining <= 0) resolve();
+      elapsed += dt;
+      if (this._resolveAtMin && elapsed >= MIN_TIME) resolve();
+      if (elapsed >= CAP_TIME) resolve();
     });
     this._cleanup.push(stop);
     this._cleanup.push(() => { resolved = true; });

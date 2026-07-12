@@ -141,14 +141,15 @@ export class CameraDirector {
         break;
       }
 
-      // Safety cutaway: rise up and tilt to the sky while audio/card resolve
-      // the moment (handled by PhaseController). No player action is shown.
+      // Safety cutaway: crane up and back to a high 3/4 while keeping the focal
+      // (the scene) in frame — a "pull away from the moment", never a bare sky
+      // shot. PhaseController resolves it with a date card. No player action.
       case 'cutaway': {
         const e = easeInOut(t);
-        const end = c.startPos.clone().add(new THREE.Vector3(0, 15, -5));
+        const center = focal.clone();
+        const end = center.clone().add(new THREE.Vector3(7, 11, 11));
         cam.position.lerpVectors(c.startPos, end, e);
-        const sky = end.clone().add(fwd.clone().multiplyScalar(18)).setY(55);
-        const endQuat = this._lookQuat(end, sky);
+        const endQuat = this._lookQuat(end, center.setY(1.2));
         cam.quaternion.slerpQuaternions(c.startQuat, endQuat, e);
         break;
       }
